@@ -12,8 +12,16 @@ create table if not exists public.profiles (
   phone       text,
   role        text not null default 'owner'   check (role in ('admin', 'owner')),
   status      text not null default 'pending' check (status in ('pending', 'approved', 'suspended')),
+  terms_accepted_at  timestamptz,
+  privacy_accepted_at timestamptz,
+  policy_version text,
   created_at  timestamptz not null default now()
 );
+
+-- Keep upgrades safe for projects that created profiles before policy consent was added.
+alter table public.profiles add column if not exists terms_accepted_at timestamptz;
+alter table public.profiles add column if not exists privacy_accepted_at timestamptz;
+alter table public.profiles add column if not exists policy_version text;
 
 create table if not exists public.hostels (
   id           uuid primary key default gen_random_uuid(),

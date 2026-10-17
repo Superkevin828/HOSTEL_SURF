@@ -18,6 +18,7 @@ HOSTEL_SURF/
 3. In Supabase open **SQL Editor → New query**, paste all of `backend/sql/schema.sql`, press **Run**. This creates the tables, reports and the public `hostel-images` photo bucket.
 4. In Supabase open **Project Settings → API** and copy the Project URL, the `anon` key and the `service_role` key.
 5. In `backend/`, copy `.env.example` to `.env` and paste those three values in.
+   Set `SITE_URL` to the canonical public website origin (for example, `https://your-domain.example`).
 6. In a terminal inside `backend/`:
 
 ```bash
@@ -51,6 +52,14 @@ Matches a Cloudflare Pages + Render setup:
 - **Backend on [Render](https://render.com)**: root directory `backend`, build `npm install`, start `npm start`. Add the same variables as `.env`, and set `CORS_ORIGIN` to your frontend URL.
 - **Frontend on [Cloudflare Pages](https://pages.cloudflare.com)**: output directory `frontend`, no build command. Then set `API_BASE` in `frontend/js/config.js` to your Render URL.
 - Or deploy only the backend: it serves the frontend folder too, so one Render service is enough (leave `API_BASE` empty).
+- Replace the `https://buhostels.example` placeholder in public canonical metadata, `robots.txt`, `sitemap.xml`, and `llms.txt` with the real frontend domain. The backend generates `/sitemap.xml` dynamically, including approved published hostels and cover-photo metadata; set `SITE_URL` to the frontend's canonical origin. If frontend and backend use separate hosts, configure the frontend host to proxy `/sitemap.xml` to the backend endpoint, or submit the backend sitemap in Google Search Console.
+
+## Public information and discovery
+
+- `/documentation.html` explains the visitor, owner, and administrator flows.
+- `/terms.html` and `/privacy.html` describe platform use and data handling. These are project templates; review them for your actual operating arrangements and applicable law before launch.
+- Owner registration requires agreement to the Terms of Use and acknowledgement of the Privacy Policy. The backend enforces this and records the policy version and acceptance timestamps. If the Supabase schema was already installed, rerun `backend/sql/schema.sql` to add the new nullable acceptance columns.
+- Public pages include descriptive metadata, and hostel details add structured lodging data and dynamic page metadata. `/robots.txt`, `/sitemap.xml`, and `/llms.txt` help search engines and AI crawlers discover public information. Search engines decide independently what to index; keyword metadata does not guarantee rankings.
 
 ## Notes
 

@@ -65,9 +65,14 @@
       phone: $('#upPhone').value.trim(),
       email: $('#upEmail').value.trim(),
       password: $('#upPass').value,
+      accepted_policies: $('#upPolicies').checked,
     };
     if (!fields.full_name || !fields.phone || !fields.email || fields.password.length < 8) {
       err.textContent = 'Fill in every field. The password needs at least 8 characters.';
+      return;
+    }
+    if (!fields.accepted_policies) {
+      err.textContent = 'Please agree to the Terms of Use and acknowledge the Privacy Policy before continuing.';
       return;
     }
     await BU.busy($('#btnUp'), 'Creating account…', async () => {

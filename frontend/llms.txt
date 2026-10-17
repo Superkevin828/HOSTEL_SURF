@@ -1,0 +1,21 @@
+# BUhostels
+
+> BUhostels helps Busitema University students discover hostel accommodation, compare rooms and semester prices, and contact listing owners directly.
+
+## Public pages
+
+- [Browse hostels](https://buhostels.example/): public hostel search and listing cards.
+- [Project guide](https://buhostels.example/documentation.html): how visitors, owners, and administrators use the service.
+- [Terms of Use](https://buhostels.example/terms.html): terms for browsing and publishing listings.
+- [Privacy Policy](https://buhostels.example/privacy.html): information handled by the service.
+
+## Search and listing information
+
+Public hostel details may include the hostel name, area, address, room types, semester prices in UGX, availability, amenities, photos, and owner contact information. Listings are supplied and maintained by their owners; the service does not process bookings or payments.
+
+## Discovery files
+
+- [XML sitemap](https://buhostels.example/sitemap.xml): canonical public pages, published hostel details, and cover image descriptions.
+- [Robots instructions](https://buhostels.example/robots.txt): crawler access rules.
+
+Replace `buhostels.example` with the live public domain before deployment.

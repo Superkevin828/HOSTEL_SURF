@@ -11,12 +11,14 @@ const router = express.Router();
 // Owners sign themselves up; the admin approves them before they can post.
 router.post('/register', async (req, res) => {
   const b = req.body || {};
+  if (b.accepted_policies !== true) throw httpError(400, 'Please agree to the Terms of Use and acknowledge the Privacy Policy.');
   const profile = await createOwnerAccount({
     email: b.email,
     password: b.password,
     full_name: b.full_name,
     phone: b.phone,
     status: 'pending',
+    accepted_policies: true,
   });
   logEvent('owner_signup', { actor_id: profile.id, meta: { actor: profile.full_name } });
 

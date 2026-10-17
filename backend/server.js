@@ -6,6 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { admin } = require('./src/supabase');
 
 const missing = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'].filter((k) => !process.env[k]);
 if (missing.length) {
@@ -32,6 +33,58 @@ const limiter = (windowMs, limit, message) =>
   rateLimit({ windowMs, limit, standardHeaders: 'draft-7', legacyHeaders: false, message: { error: message } });
 
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
+
+const xmlEscape = (value) =>
+  String(value == null ? '' : value).replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
+const siteUrl = (process.env.SITE_URL || 'https://buhostels.example').replace(/\/+$/, '');
+
+app.get('/sitemap.xml', async (req, res, next) => {
+  try {
+    const hostels = [];
+    let offset = 0;
+    while (true) {
+      const { data, error } = await admin
+        .from('hostels')
+        .select('id,name,area,updated_at,owner:profiles(status),hostel_images(url,is_cover)')
+        .eq('status', 'published')
+        .order('updated_at', { ascending: false })
+        .range(offset, offset + 999);
+      if (error) throw error;
+      const page = data || [];
+      hostels.push(...page.filter((h) => h.owner && h.owner.status === 'approved'));
+      if (page.length < 1000) break;
+      offset += 1000;
+    }
+
+    const staticPages = [
+      { path: '/', priority: '1.0', frequency: 'daily' },
+      { path: '/documentation.html', priority: '0.7', frequency: 'monthly' },
+      { path: '/terms.html', priority: '0.3', frequency: 'yearly' },
+      { path: '/privacy.html', priority: '0.3', frequency: 'yearly' },
+    ];
+    const urls = staticPages
+      .map(
+        (page) =>
+          `<url><loc>${xmlEscape(siteUrl + page.path)}</loc><changefreq>${page.frequency}</changefreq><priority>${page.priority}</priority></url>`
+      );
+
+    for (const hostel of hostels) {
+      const image = (hostel.hostel_images || []).find((item) => item.is_cover) || (hostel.hostel_images || [])[0];
+      const location = `${siteUrl}/hostel.html?id=${encodeURIComponent(hostel.id)}`;
+      const lastmod = hostel.updated_at ? `<lastmod>${xmlEscape(new Date(hostel.updated_at).toISOString())}</lastmod>` : '';
+      const imageTag = image
+        ? `<image:image><image:loc>${xmlEscape(image.url)}</image:loc><image:title>${xmlEscape(hostel.name + ' hostel near Busitema University')}</image:title><image:caption>${xmlEscape(hostel.name + ' in ' + hostel.area + ', student accommodation near Busitema University')}</image:caption></image:image>`
+        : '';
+      urls.push(`<url><loc>${xmlEscape(location)}</loc>${lastmod}<changefreq>weekly</changefreq><priority>0.8</priority>${imageTag}</url>`);
+    }
+
+    res.type('application/xml').set('Cache-Control', 'public, max-age=3600').send(
+      `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${urls.join('')}</urlset>`
+    );
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.use('/api/auth/login', limiter(15 * 60 * 1000, 30, 'Too many sign-in attempts. Try again in a few minutes.'));
 app.use('/api/auth/register', limiter(60 * 60 * 1000, 15, 'Too many sign-ups from this connection. Try again later.'));
