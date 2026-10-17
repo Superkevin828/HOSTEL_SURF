@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — BUhostels</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1d3a31">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/dash.css">
+</head>
+<body class="dashboard">
+<div class="dash">
+  <aside class="side">
+    <div>
+      <a class="mark" href="index.html"><span class="mark-box">BU</span><em>hostels</em></a>
+      <span class="role">Admin</span>
+    </div>
+    <nav aria-label="Admin">
+      <a href="#overview" data-nav="overview" id="nOverview"></a>
+      <a href="#activity" data-nav="activity" id="nActivity"></a>
+      <a href="#hostels" data-nav="hostels" id="nHostels"></a>
+      <a href="#owners" data-nav="owners" id="nOwners"></a>
+    </nav>
+    <div class="who">
+      <div><b id="who">…</b><span id="whoMail"></span></div>
+      <a href="index.html" id="nSite"></a>
+      <button type="button" id="logout"></button>
+    </div>
+  </aside>
+
+  <main class="dmain">
+    <div id="main"><div class="loading">Loading…</div></div>
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

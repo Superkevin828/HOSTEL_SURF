@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — BUhostels</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1d3a31">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="auth">
+  <section class="auth-side">
+    <a class="mark" href="index.html"><span class="mark-box">BU</span><em>hostels</em></a>
+    <div>
+      <h1>Your hostel, in front of every Busitema student.</h1>
+      <p>Post your rooms, prices and photos once. Students find you by price, area and distance, then reach you straight on WhatsApp.</p>
+      <ul id="perks"></ul>
+    </div>
+    <p style="font-size:14px">Looking for a room instead? <a href="index.html" style="text-decoration:underline">Browse hostels</a></p>
+  </section>
+
+  <main class="auth-main">
+    <div class="auth-box">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tabIn" aria-selected="true">Sign in</button>
+        <button type="button" role="tab" id="tabUp" aria-selected="false">List your hostel</button>
+      </div>
+
+      <form id="formIn" novalidate>
+        <h2>Welcome back</h2>
+        <div class="field"><label for="inEmail">Email</label><input id="inEmail" type="email" autocomplete="username" required></div>
+        <div class="field"><label for="inPass">Password</label><input id="inPass" type="password" autocomplete="current-password" required></div>
+        <div class="form-err" id="errIn" role="alert"></div>
+        <button class="btn btn-solid btn-block" type="submit" id="btnIn">Sign in</button>
+        <p class="muted" style="font-size:14px">Forgot your password? Ask the BUhostels admin to reset it for you.</p>
+      </form>
+
+      <form id="formUp" novalidate hidden>
+        <h2>Create an owner account</h2>
+        <div class="notice">New accounts are checked by the admin before you can post. You can sign in straight away while you wait.</div>
+        <div class="field"><label for="upName">Your full name</label><input id="upName" type="text" autocomplete="name" required></div>
+        <div class="field"><label for="upPhone">Phone number</label><input id="upPhone" type="tel" autocomplete="tel" placeholder="0772 123 456" required></div>
+        <div class="field"><label for="upEmail">Email</label><input id="upEmail" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="upPass">Password</label><input id="upPass" type="password" autocomplete="new-password" minlength="8" required><span class="hint">At least 8 characters.</span></div>
+        <div class="form-err" id="errUp" role="alert"></div>
+        <button class="btn btn-clay btn-block" type="submit" id="btnUp">Create account</button>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>
