@@ -1427,3 +1427,43 @@ dialog.lightbox {
 
 .biz{display:flex;align-items:center;gap:12px}
 .biz strong{font-family:var(--serif);font-size:18px}
+
+/* ───────── soft corners: no sharp edges anywhere ───────── */
+:root {
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 26px;
+  --r-pill: 999px;
+}
+.mark-box { border-radius: var(--r-sm); }
+.nav button, .nav a.nav-cta { border-radius: var(--r-pill); }
+.btn, .filters .close-filters, .lightbox .lb-btn { border-radius: var(--r-pill); }
+input[type='text'], input[type='search'], input[type='email'], input[type='password'],
+input[type='tel'], input[type='number'], select, textarea { border-radius: var(--r-sm); }
+textarea { border-radius: var(--r-md); }
+.hero { border-radius: 0 0 var(--r-lg) var(--r-lg); }
+.hero-search { border-radius: var(--r-md); }
+.hero-search input, .hero-search select { border-radius: 0; }
+.hero-search .btn { border-radius: var(--r-pill); }
+.filters { border-radius: var(--r-md); }
+.chip, .tag, .tag-full, .photo-count, .lightbox .lb-count { border-radius: var(--r-pill); }
+.hcard, .skel-card { border-radius: var(--r-md); overflow: hidden; }
+.hcard-media, .hcard-media img { border-radius: 0; }
+.empty { border-radius: var(--r-md); }
+.gallery-main, .gallery-main img { border-radius: var(--r-md); }
+.thumbs button, .thumbs img { border-radius: var(--r-sm); }
+.contact-card, .related .hcard { border-radius: var(--r-md); }
+dialog.dlg, dialog.lightbox { border-radius: var(--r-md); }
+.toast { border-radius: var(--r-sm); }
+.choice, .notice, .banner { border-radius: var(--r-md); }
+.auth-side { border-radius: 0 var(--r-lg) var(--r-lg) 0; }
+.auth-box { border-radius: var(--r-md); }
+.tabs button { border-radius: var(--r-sm) var(--r-sm) 0 0; }
+.biz .avatar { border-radius: 50%; }
+.check input { border-radius: 5px; }
+@media (max-width: 900px) {
+  .auth-side { border-radius: 0 0 var(--r-lg) var(--r-lg); }
+}
+.ledger { border-radius: var(--r-md); }
+.tag-feat { border-radius: var(--r-pill); }

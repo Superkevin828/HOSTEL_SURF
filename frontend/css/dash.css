@@ -714,3 +714,25 @@ body.dashboard {
 .approve-pop b{display:block;font-family:var(--serif);font-size:18px;font-weight:560}
 .approve-pop span{font-size:14px;opacity:.85}
 @media (prefers-reduced-motion:reduce){.approve-pop{transition:none}}
+
+/* ───────── soft corners ───────── */
+.side { border-radius: 0 var(--r-lg) var(--r-lg) 0; }
+.side nav a { border-radius: var(--r-sm); }
+.side .who button { border-radius: var(--r-pill); }
+.tile, .panel, .banner { border-radius: var(--r-md); }
+.tbl-wrap { border-radius: var(--r-md); overflow: auto; }
+.thumb, .thumb img { border-radius: var(--r-xs); }
+.badge, .photo .cover-tag, .side nav .count { border-radius: var(--r-pill); }
+.btn-icon { border-radius: 50%; }
+.etabs a { border-radius: var(--r-pill); }
+.dropzone { border-radius: var(--r-md); }
+.photo { overflow: hidden; }
+.photo, .photo .img, .photo img { border-radius: var(--r-md); }
+.seg { border-radius: var(--r-pill); overflow: hidden; }
+.feed li.fresh { border-radius: var(--r-sm); }
+.approve-pop { border-radius: var(--r-md); }
+.chart .bar { rx: 4px; }
+@media (max-width: 900px) {
+  .side { border-radius: 0 0 var(--r-lg) var(--r-lg); }
+}
+.etabs a { border-radius: var(--r-sm) var(--r-sm) 0 0; }
