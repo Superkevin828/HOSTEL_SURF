@@ -1,6 +1,4 @@
-// Where the API lives.
-//  - Local (npm start): same origin, so leave it empty.
-//  - Cloudflare Pages: set PRODUCTION_API to your Render URL (no trailing slash).
+
 (function () {
   var PRODUCTION_API = 'https://buhostels-api.onrender.com';
   var h = location.hostname;
