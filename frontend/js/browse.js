@@ -312,10 +312,6 @@
 
   function renderLedger() {
     if (!facets) return;
-    $('#lgHostels').textContent = facets.total;
-    $('#lgRooms').textContent = facets.rooms;
-    $('#lgMin').textContent = facets.price ? Number(facets.price.min).toLocaleString('en-US') : '—';
-    $('#lgAreas').textContent = facets.areas.length;
     if (facets.price) {
       $('#fmin').placeholder = 'Min · ' + Number(facets.price.min).toLocaleString('en-US');
       $('#fmax').placeholder = 'Max · ' + Number(facets.price.max).toLocaleString('en-US');
