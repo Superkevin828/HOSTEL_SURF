@@ -66,7 +66,10 @@
         '<p>An independent listing site that helps Busitema University students find a place to stay and reach the owner directly.</p></div>' +
         '<ul><li><a href="index.html#results">Browse hostels</a></li>' +
         '<li><a href="login.html#register">List your hostel</a></li>' +
-        '<li><a href="login.html">Owner sign in</a></li></ul>' +
+        '<li><a href="login.html">Owner sign in</a></li>' +
+        '<li><a href="documentation.html">How BUhostels works</a></li>' +
+        '<li><a href="terms.html">Terms of Use</a></li>' +
+        '<li><a href="privacy.html">Privacy Policy</a></li></ul>' +
       '</div></footer>'
     );
   };

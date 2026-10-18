@@ -118,6 +118,7 @@
       phone: $('#upPhone').value.trim(),
       email: $('#upEmail').value.trim(),
       password: $('#upPass').value,
+      accepted_policies: $('#upPolicies').checked,
       business_name: $('#upBiz').value.trim(),
       campus: $('#upCampus').value,
       location: $('#upLoc').value.trim(),
@@ -125,6 +126,10 @@
     };
     if (!fields.business_name || !fields.campus || !fields.location) {
       err.textContent = 'Add your hostel name, the campus it is near, and the area or town.';
+      return;
+    }
+    if (!fields.accepted_policies) {
+      err.textContent = 'Please agree to the Terms of Use and acknowledge the Privacy Policy before continuing.';
       return;
     }
     await BU.busy($('#btnUp'), 'Creating account…', async () => {

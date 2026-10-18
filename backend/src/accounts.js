@@ -3,7 +3,7 @@ const { httpError } = require('./db');
 const { EMAIL_RE, str, normalizePhone, parseBusiness } = require('./util');
 
 // Creates an auth user + owner profile. Used by public sign-up (pending) and admin "add owner" (approved).
-async function createOwnerAccount({ email, password, full_name, phone, status = 'pending', ...rest }) {
+async function createOwnerAccount({ email, password, full_name, phone, status = 'pending', accepted_policies = false, ...rest }) {
   const mail = str(email, 120).toLowerCase();
   const name = str(full_name, 80);
   const tel = normalizePhone(phone);
@@ -32,7 +32,22 @@ async function createOwnerAccount({ email, password, full_name, phone, status = 
 
   const inserted = await admin
     .from('profiles')
-    .insert({ id: created.data.user.id, email: mail, full_name: name, phone: tel, role: 'owner', status, ...business })
+    .insert({
+      id: created.data.user.id,
+      email: mail,
+      full_name: name,
+      phone: tel,
+      role: 'owner',
+      status,
+      ...business,
+      ...(accepted_policies
+        ? {
+            terms_accepted_at: new Date().toISOString(),
+            privacy_accepted_at: new Date().toISOString(),
+            policy_version: '2026-10-17',
+          }
+        : {}),
+    })
     .select()
     .single();
   if (inserted.error) {

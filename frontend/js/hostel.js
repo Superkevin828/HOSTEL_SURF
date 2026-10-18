@@ -43,6 +43,55 @@
     document.title = h.name + ' — BUhostels';
     const prices = h.rooms.map((r) => r.price);
     const from = prices.length ? Math.min(...prices) : null;
+    const description =
+      h.name + ' in ' + h.area + ' near Busitema University. View hostel photos, room prices, availability, and contact details.';
+    const canonical = location.origin + location.pathname + '?id=' + encodeURIComponent(h.id);
+    const setMeta = (selector, attribute, value) => {
+      let meta = document.head.querySelector(selector);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute(attribute, selector.includes('property=') ? selector.match(/property="([^"]+)"/)[1] : selector.match(/name="([^"]+)"/)[1]);
+        document.head.appendChild(meta);
+      }
+      meta.content = value;
+    };
+    setMeta('meta[name="description"]', 'name', description);
+    setMeta('meta[name="keywords"]', 'name', [h.name, h.area, 'Busitema University hostel', 'student accommodation Uganda', ...h.amenities].join(', '));
+    setMeta('meta[name="robots"]', 'name', h.status === 'published' ? 'index,follow' : 'noindex,nofollow');
+    setMeta('meta[property="og:title"]', 'property', h.name + ' — BUhostels');
+    setMeta('meta[property="og:description"]', 'property', description);
+    setMeta('meta[property="og:url"]', 'property', canonical);
+    if (h.images.length) setMeta('meta[property="og:image"]', 'property', h.images[0].url);
+    let canonicalLink = document.head.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.href = canonical;
+    let structuredData = document.getElementById('hostelStructuredData');
+    if (!structuredData) {
+      structuredData = document.createElement('script');
+      structuredData.id = 'hostelStructuredData';
+      structuredData.type = 'application/ld+json';
+      document.head.appendChild(structuredData);
+    }
+    structuredData.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'LodgingBusiness',
+      name: h.name,
+      description,
+      url: canonical,
+      image: h.images.map((image) => image.url),
+      telephone: '+' + h.phone,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: h.address || undefined,
+        addressLocality: h.area,
+        addressCountry: 'UG',
+      },
+      priceRange: from == null ? undefined : 'From UGX ' + Number(from).toLocaleString('en-US') + ' per semester',
+    });
     const tel = '+' + h.phone;
     const waNum = h.whatsapp || h.phone;
     const hidden = h.status !== 'published';
