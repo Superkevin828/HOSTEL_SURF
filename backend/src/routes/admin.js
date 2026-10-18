@@ -19,7 +19,7 @@ router.get('/overview', async (req, res) => {
     must(
       await admin
         .from('profiles')
-        .select('id,full_name,phone,email,created_at')
+        .select('id,full_name,phone,email,business_name,campus,location,created_at')
         .eq('role', 'owner')
         .eq('status', 'pending')
         .order('created_at', { ascending: true })
@@ -59,7 +59,7 @@ router.get('/owners', async (req, res) => {
     must(
       await admin
         .from('profiles')
-        .select('id,email,full_name,phone,status,created_at,hostels(id)')
+        .select('id,email,full_name,phone,status,business_name,campus,location,avatar_url,created_at,hostels(id)')
         .eq('role', 'owner')
         .order('created_at', { ascending: false })
         .range(0, 999),
@@ -77,6 +77,10 @@ router.post('/owners', async (req, res) => {
     password: b.password,
     full_name: b.full_name,
     phone: b.phone,
+    business_name: b.business_name,
+    campus: b.campus,
+    location: b.location,
+    address: b.address,
     status: 'approved',
   });
   logEvent('owner_created', { actor_id: req.user.id, meta: { owner: profile.full_name } });
@@ -129,6 +133,7 @@ router.delete('/owners/:id', async (req, res) => {
   const owner = await findOwner(req.params.id);
   const hostels = must(await admin.from('hostels').select('id').eq('owner_id', owner.id), 'owner hostels') || [];
   await removeHostelFiles(hostels.map((h) => h.id));
+  if (owner.avatar_path) await admin.storage.from(BUCKET).remove([owner.avatar_path]);
   const { error } = await admin.auth.admin.deleteUser(owner.id);
   if (error) {
     console.error('[admin] delete owner failed:', error.message);

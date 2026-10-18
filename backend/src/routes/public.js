@@ -4,7 +4,7 @@ const { must, httpError } = require('../db');
 const { optionalUser } = require('../middleware/auth');
 const { logEvent } = require('../events');
 const cache = require('../cache');
-const { AMENITIES, ROOM_TYPES, GENDERS, str, int, num, clamp, isUuid, shapeHostel } = require('../util');
+const { AMENITIES, CAMPUSES, ROOM_TYPES, GENDERS, str, int, num, clamp, isUuid, shapeHostel } = require('../util');
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ async function loadPublished() {
     admin
       .from('hostels')
       .select(
-        'id,name,area,address,distance_km,phone,whatsapp,gender,amenities,featured,created_at,' +
+        'id,name,area,address,campus,distance_km,phone,whatsapp,gender,amenities,featured,created_at,' +
           'owner:profiles(status),rooms(id,type,price,available),hostel_images(url,is_cover,created_at)'
       )
       .eq('status', 'published')
@@ -38,6 +38,7 @@ async function loadPublished() {
         name: s.name,
         area: s.area,
         address: s.address,
+        campus: s.campus,
         distance_km: s.distance_km,
         phone: s.phone,
         whatsapp: s.whatsapp || s.phone,
@@ -59,10 +60,15 @@ async function loadPublished() {
     entry.count += 1;
     areaMap.set(key, entry);
   });
+  const campusMap = new Map();
+  rows.forEach((h) => {
+    if (h.campus) campusMap.set(h.campus, (campusMap.get(h.campus) || 0) + 1);
+  });
   const prices = rows.flatMap((h) => h.rooms.map((r) => r.price));
   const facets = {
     total: rows.length,
     rooms: prices.length,
+    campuses: CAMPUSES.filter((c) => campusMap.has(c)).map((c) => ({ name: c, count: campusMap.get(c) })),
     areas: [...areaMap.values()].sort((a, b) => a.name.localeCompare(b.name)),
     price: prices.length ? { min: Math.min(...prices), max: Math.max(...prices) } : null,
   };
@@ -77,6 +83,7 @@ function toCard(h, shownRooms) {
     name: h.name,
     area: h.area,
     address: h.address,
+    campus: h.campus,
     distance_km: h.distance_km,
     gender: h.gender,
     amenities: h.amenities,
@@ -104,7 +111,7 @@ router.get('/meta', async (req, res) => {
   } catch (e) {
     /* meta still works without areas */
   }
-  res.json({ amenities: AMENITIES, roomTypes: ROOM_TYPES, genders: GENDERS, areas });
+  res.json({ amenities: AMENITIES, campuses: CAMPUSES, roomTypes: ROOM_TYPES, genders: GENDERS, areas });
 });
 
 router.get('/hostels', async (req, res) => {
@@ -113,6 +120,7 @@ router.get('/hostels', async (req, res) => {
   const q = str(req.query.q, 80).toLowerCase();
   const tokens = q.split(/\s+/).filter(Boolean);
   const area = str(req.query.area, 60).toLowerCase();
+  const campus = CAMPUSES.includes(req.query.campus) ? req.query.campus : '';
   const gender = GENDERS.some((g) => g.value === req.query.gender) ? req.query.gender : '';
   const type = ROOM_TYPES.some((t) => t.value === req.query.type) ? req.query.type : '';
   const minPrice = num(req.query.minPrice);
@@ -138,6 +146,7 @@ router.get('/hostels', async (req, res) => {
         if (!tokens.every((t) => hay.includes(t))) return false;
       }
       if (area && h.area.toLowerCase() !== area) return false;
+      if (campus && h.campus !== campus) return false;
       if (gender && h.gender !== gender) return false;
       if (maxDistance != null && (h.distance_km == null || h.distance_km > maxDistance)) return false;
       if (wanted.length && !wanted.every((a) => h.amenities.includes(a))) return false;
@@ -181,7 +190,7 @@ router.get('/hostels/:id', async (req, res) => {
   const row = must(
     await admin
       .from('hostels')
-      .select('*, owner:profiles(full_name,status), rooms(*), hostel_images(*)')
+      .select('*, owner:profiles(full_name,status,business_name,avatar_url), rooms(*), hostel_images(*)')
       .eq('id', req.params.id)
       .maybeSingle(),
     'hostel detail'
@@ -210,6 +219,9 @@ router.get('/hostels/:id', async (req, res) => {
       description: h.description,
       area: h.area,
       address: h.address,
+      campus: h.campus,
+      latitude: h.latitude == null ? null : Number(h.latitude),
+      longitude: h.longitude == null ? null : Number(h.longitude),
       distance_km: h.distance_km,
       phone: h.phone,
       whatsapp: h.whatsapp || h.phone,
@@ -218,6 +230,8 @@ router.get('/hostels/:id', async (req, res) => {
       status: h.status,
       featured: h.featured,
       contact_name: row.owner ? row.owner.full_name : null,
+      business_name: row.owner ? row.owner.business_name || null : null,
+      business_logo: row.owner ? row.owner.avatar_url || null : null,
       rooms: h.rooms.map((r) => ({
         id: r.id,
         name: r.name,

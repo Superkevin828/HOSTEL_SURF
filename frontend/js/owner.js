@@ -193,6 +193,7 @@
   function hostelBody(h) {
     return {
       name: h.name, description: h.description || '', area: h.area, address: h.address || '', distance_km: h.distance_km == null ? '' : h.distance_km,
+      campus: h.campus || '', latitude: h.latitude == null ? '' : h.latitude, longitude: h.longitude == null ? '' : h.longitude,
       phone: h.phone, whatsapp: h.whatsapp && h.whatsapp !== h.phone ? h.whatsapp : '', gender: h.gender, amenities: h.amenities || [], status: h.status,
     };
   }
@@ -231,18 +232,20 @@
   function detailsTab(body, h) {
     const v = h
       ? hostelBody(h)
-      : { name: '', description: '', area: '', address: '', distance_km: '', phone: me.phone || '', whatsapp: '', gender: 'mixed', amenities: [], status: 'published' };
+      : { name: '', description: '', area: me.location || '', address: '', distance_km: '', campus: me.campus || '', latitude: '', longitude: '', phone: me.phone || '', whatsapp: '', gender: 'mixed', amenities: [], status: 'published' };
     const areas = (meta.areas || []).map((a) => '<option value="' + esc(a) + '">').join('');
 
     body.innerHTML =
       '<form class="panel" id="hForm" novalidate><div class="form-grid">' +
         field('Hostel name', '<input id="fName" type="text" maxlength="80" value="' + esc(v.name) + '" required>') +
         field('Area or town', '<input id="fArea" type="text" list="areaList" maxlength="60" value="' + esc(v.area) + '" required><datalist id="areaList">' + areas + '</datalist>', 'Where the hostel is, e.g. the trading centre or village.') +
+        field('Campus', '<select id="fCampus" required><option value="">Choose a campus</option>' + (meta.campuses || []).map((c) => '<option value="' + esc(c) + '"' + (c === v.campus ? ' selected' : '') + '>' + esc(c) + ' campus</option>').join('') + '</select>', 'The campus this hostel is closest to.') +
         field('Distance from campus (km)', '<input id="fDist" type="number" step="0.1" min="0" max="100" inputmode="decimal" value="' + esc(v.distance_km) + '">', 'Roughly, to the main gate. Students filter by this.') +
         field('Who it is for', '<select id="fGender">' + meta.genders.map((g) => '<option value="' + esc(g.value) + '"' + (g.value === v.gender ? ' selected' : '') + '>' + esc(g.label) + '</option>').join('') + '</select>') +
         field('Phone number', '<input id="fPhone" type="tel" value="' + esc(v.phone ? localPhone(v.phone) : '') + '" placeholder="0772 123 456" required>', 'Shown on your page, with a Call button.') +
         field('WhatsApp number', '<input id="fWa" type="tel" value="' + esc(v.whatsapp ? localPhone(v.whatsapp) : '') + '" placeholder="Leave empty if it is the same">', 'Students message this number.') +
         '<div class="field span2"><label for="fAddr">Directions or address</label><input id="fAddr" type="text" maxlength="160" value="' + esc(v.address) + '" placeholder="e.g. 200 m past the market, opposite the clinic"></div>' +
+        '<div class="field span2"><span class="f-label">Map location (optional)</span><div class="geo"><input id="fLat" type="text" inputmode="decimal" placeholder="Latitude" value="' + esc(v.latitude) + '" aria-label="Latitude"><input id="fLng" type="text" inputmode="decimal" placeholder="Longitude" value="' + esc(v.longitude) + '" aria-label="Longitude"><button class="btn btn-ghost btn-sm" type="button" id="fGeo">Use my current location</button></div><span class="hint">Stand at the hostel and tap the button. Students get an Open in Google Maps link.</span></div>' +
         '<div class="field span2"><label for="fDesc">About the hostel</label><textarea id="fDesc" maxlength="2000" placeholder="Rules, security, water and power, what makes it a good place to stay…">' + esc(v.description) + '</textarea></div>' +
         '<div class="field span2"><span class="f-label">Amenities</span><div class="checks" id="fAmen">' +
           meta.amenities.map((a) => '<label class="check"><input type="checkbox" value="' + esc(a) + '"' + (v.amenities.includes(a) ? ' checked' : '') + '><span>' + esc(a) + '</span></label>').join('') +
@@ -252,13 +255,26 @@
       '<div class="form-foot"><button class="btn btn-solid" type="submit" id="hSave">' + (h ? 'Save changes' : 'Create hostel') + '</button>' +
       (h ? '' : '<span class="muted">You will add rooms and photos next.</span>') + '</div></form>';
 
+    $('#fGeo').addEventListener('click', () => {
+      if (!navigator.geolocation) return toast('This browser cannot share your location.', 'err');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          $('#fLat').value = pos.coords.latitude.toFixed(6);
+          $('#fLng').value = pos.coords.longitude.toFixed(6);
+          toast('Location captured. Save to keep it.', 'ok');
+        },
+        () => toast('Could not get your location. Allow location access and try again.', 'err'),
+        { enableHighAccuracy: true, timeout: 15000 }
+      );
+    });
+
     $('#hForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const err = $('#hErr');
       err.textContent = '';
       if (!guard()) return;
       const payload = {
-        name: $('#fName').value, area: $('#fArea').value, distance_km: $('#fDist').value, gender: $('#fGender').value,
+        name: $('#fName').value, area: $('#fArea').value, distance_km: $('#fDist').value, campus: $('#fCampus').value, latitude: $('#fLat').value.trim(), longitude: $('#fLng').value.trim(), gender: $('#fGender').value,
         phone: $('#fPhone').value, whatsapp: $('#fWa').value, address: $('#fAddr').value, description: $('#fDesc').value,
         amenities: $$('#fAmen input:checked').map((i) => i.value), status: $('#fLive').checked ? 'published' : 'hidden',
       };
@@ -364,30 +380,6 @@
   }
 
   // — photos —
-  async function shrink(file, max, quality) {
-    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error(file.name + ' is not a JPG, PNG or WebP photo.');
-    let bmp;
-    if (window.createImageBitmap) bmp = await createImageBitmap(file);
-    else {
-      bmp = await new Promise((res, rej) => {
-        const im = new Image();
-        im.onload = () => res(im);
-        im.onerror = () => rej(new Error('Could not read ' + file.name));
-        im.src = URL.createObjectURL(file);
-      });
-    }
-    const w0 = bmp.width || bmp.naturalWidth;
-    const h0 = bmp.height || bmp.naturalHeight;
-    const scale = Math.min(1, max / Math.max(w0, h0));
-    const c = document.createElement('canvas');
-    c.width = Math.round(w0 * scale);
-    c.height = Math.round(h0 * scale);
-    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
-    const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', quality));
-    if (!blob) throw new Error('Could not prepare ' + file.name);
-    return new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
-  }
-
   function photosTab(body, h) {
     function paint() {
       body.innerHTML =
@@ -427,7 +419,7 @@
           const slice = files.slice(i, i + 3);
           status.textContent = 'Uploading ' + Math.min(i + 3, files.length) + ' of ' + files.length + '…';
           const small = [];
-          for (const f of slice) small.push(await shrink(f, 1600, 0.82));
+          for (const f of slice) small.push(await BU.shrinkImage(f, 1600, 0.82));
           const fd = new FormData();
           small.forEach((f) => fd.append('images', f, f.name));
           await api('/owner/hostels/' + h.id + '/images', { method: 'POST', form: fd });
@@ -476,6 +468,14 @@
         field('Email', '<input type="email" value="' + esc(me.email) + '" disabled>', 'To change your email, ask the admin.') +
         field('Account status', '<input type="text" value="' + esc(me.status === 'approved' ? 'Approved' : 'Waiting for approval') + '" disabled>') +
       '</div><div class="form-err" id="aErr" role="alert" style="margin-top:14px"></div><div class="form-foot"><button class="btn btn-solid" type="submit" id="aSave">Save details</button></div></form>' +
+      '<form class="panel" id="bForm" novalidate><h2>Your business</h2>' +
+        '<div class="logo-pick" style="margin-bottom:16px"><span class="avatar lg" id="bLogo"></span><div><label class="btn btn-ghost btn-sm" for="bFile">' + (me.avatar_url ? 'Change logo' : 'Add logo or photo') + '</label><input id="bFile" type="file" accept="image/jpeg,image/png,image/webp" hidden>' + (me.avatar_url ? ' <button class="btn btn-ghost btn-sm" type="button" id="bDel">Remove</button>' : '') + '<div class="hint">Shown on your hostel pages.</div></div></div>' +
+        '<div class="form-grid">' +
+        field('Hostel or business name', '<input id="bName" type="text" maxlength="80" value="' + esc(me.business_name || '') + '" required>') +
+        field('Campus', '<select id="bCampus"><option value="">Choose a campus</option>' + (meta.campuses || []).map((c) => '<option value="' + esc(c) + '"' + (c === me.campus ? ' selected' : '') + '>' + esc(c) + ' campus</option>').join('') + '</select>') +
+        field('Area or town', '<input id="bLoc" type="text" maxlength="60" value="' + esc(me.location || '') + '" required>') +
+        field('Directions (optional)', '<input id="bAddr" type="text" maxlength="160" value="' + esc(me.address || '') + '">') +
+      '</div><div class="form-err" id="bErr" role="alert" style="margin-top:14px"></div><div class="form-foot"><button class="btn btn-solid" type="submit" id="bSave">Save business</button></div></form>' +
       '<form class="panel" id="pForm" novalidate><h2>Change password</h2><div class="form-grid">' +
         field('Current password', '<input id="pOld" type="password" autocomplete="current-password" required>') +
         field('New password', '<input id="pNew" type="password" autocomplete="new-password" minlength="8" required>', 'At least 8 characters.') +
@@ -493,6 +493,52 @@
           toast('Details saved', 'ok');
         } catch (ex) {
           $('#aErr').textContent = ex.message;
+        }
+      });
+    });
+    const paintLogo = () => {
+      const el = $('#bLogo');
+      el.style.backgroundImage = me.avatar_url ? 'url(' + me.avatar_url + ')' : '';
+      el.textContent = me.avatar_url ? '' : BU.initials(me.business_name || me.full_name);
+    };
+    paintLogo();
+    const saveMe = (p) => {
+      me = p;
+      BU.session.set(Object.assign({}, BU.session.get(), { profile: me }));
+      paintWho();
+    };
+    $('#bFile').addEventListener('change', async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      try {
+        const small = await BU.shrinkImage(f, 600, 0.85);
+        const fd = new FormData();
+        fd.append('avatar', small, small.name);
+        saveMe((await api('/owner/avatar', { method: 'POST', form: fd })).profile);
+        toast('Logo updated', 'ok');
+        viewAccount();
+      } catch (ex) {
+        toast(ex.message, 'err');
+      }
+    });
+    if ($('#bDel')) $('#bDel').addEventListener('click', async () => {
+      try {
+        saveMe((await api('/owner/avatar', { method: 'DELETE' })).profile);
+        viewAccount();
+      } catch (ex) {
+        toast(ex.message, 'err');
+      }
+    });
+    $('#bForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      $('#bErr').textContent = '';
+      await busy($('#bSave'), 'Saving…', async () => {
+        try {
+          const r = await api('/auth/me', { method: 'PATCH', body: { full_name: me.full_name, phone: me.phone, business_name: $('#bName').value, campus: $('#bCampus').value, location: $('#bLoc').value, address: $('#bAddr').value } });
+          saveMe(r.profile);
+          toast('Business details saved', 'ok');
+        } catch (ex) {
+          $('#bErr').textContent = ex.message;
         }
       });
     });

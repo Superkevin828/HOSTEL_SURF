@@ -40,17 +40,50 @@
         <p class="muted" style="font-size:14px">Forgot your password? Ask the BUhostels admin to reset it for you.</p>
       </form>
 
-      <form id="formUp" novalidate hidden>
-        <h2>Create an owner account</h2>
-        <div class="notice">New accounts are checked by the admin before you can post. You can sign in straight away while you wait.</div>
-        <div class="field"><label for="upName">Your full name</label><input id="upName" type="text" autocomplete="name" required></div>
-        <div class="field"><label for="upPhone">Phone number</label><input id="upPhone" type="tel" autocomplete="tel" placeholder="0772 123 456" required></div>
-        <div class="field"><label for="upEmail">Email</label><input id="upEmail" type="email" autocomplete="email" required></div>
-        <div class="field"><label for="upPass">Password</label><input id="upPass" type="password" autocomplete="new-password" minlength="8" required><span class="hint">At least 8 characters.</span></div>
-        <label class="policy-check"><input id="upPolicies" type="checkbox" required><span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and acknowledge the <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
-        <div class="form-err" id="errUp" role="alert"></div>
-        <button class="btn btn-clay btn-block" type="submit" id="btnUp">Create account</button>
-      </form>
+      <section id="formUp" hidden>
+        <!-- step 1: do you own a hostel? -->
+        <div id="step1" class="step">
+          <h2>Do you own or manage a hostel?</h2>
+          <p class="muted">Owner accounts are for people who rent out rooms near Busitema University.</p>
+          <div class="choices">
+            <button class="choice" type="button" id="ownYes"><strong>Yes, I have a hostel</strong><span>Create an owner account and list your rooms</span></button>
+            <a class="choice" id="ownNo" href="index.html#results"><strong>No, I am looking for a room</strong><span>Go back and browse hostels. No account needed</span></a>
+          </div>
+        </div>
+
+        <!-- step 2: the person -->
+        <form id="step2" class="step" novalidate hidden>
+          <p class="eyebrow">Step 1 of 2 · About you</p>
+          <h2>Create your account</h2>
+          <div class="field"><label for="upName">Your full name</label><input id="upName" type="text" autocomplete="name" required></div>
+          <div class="field"><label for="upPhone">Phone number</label><input id="upPhone" type="tel" autocomplete="tel" placeholder="0772 123 456" required></div>
+          <div class="field"><label for="upEmail">Email</label><input id="upEmail" type="email" autocomplete="email" required></div>
+          <div class="field"><label for="upPass">Password</label><input id="upPass" type="password" autocomplete="new-password" minlength="8" required><span class="hint">At least 8 characters.</span></div>
+          <div class="form-err" id="err2" role="alert"></div>
+          <div class="step-actions"><button class="btn btn-ghost" type="button" id="back2">Back</button><button class="btn btn-solid" type="submit">Continue</button></div>
+        </form>
+
+        <!-- step 3: the business -->
+        <form id="step3" class="step" novalidate hidden>
+          <p class="eyebrow">Step 2 of 2 · Your hostel business</p>
+          <h2>Tell students about it</h2>
+          <div class="notice">The admin checks new accounts before you can post. You can sign in straight away while you wait.</div>
+          <div class="logo-pick">
+            <div class="logo-prev" id="logoPrev" aria-hidden="true">BU</div>
+            <div>
+              <label class="btn btn-ghost btn-sm" for="upLogo">Add a logo or photo</label>
+              <input id="upLogo" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+              <div class="hint" id="logoName">Optional. Your business logo or a photo of the hostel.</div>
+            </div>
+          </div>
+          <div class="field"><label for="upBiz">Hostel or business name</label><input id="upBiz" type="text" maxlength="80" required></div>
+          <div class="field"><label for="upCampus">Campus it is closest to</label><select id="upCampus" required><option value="">Choose a campus</option></select></div>
+          <div class="field"><label for="upLoc">Area or town</label><input id="upLoc" type="text" maxlength="60" placeholder="e.g. Busitema trading centre" required></div>
+          <div class="field"><label for="upAddr">Directions (optional)</label><input id="upAddr" type="text" maxlength="160" placeholder="e.g. 200 m past the market"></div>
+          <div class="form-err" id="err3" role="alert"></div>
+          <div class="step-actions"><button class="btn btn-ghost" type="button" id="back3">Back</button><button class="btn btn-clay" type="submit" id="btnUp">Create account</button></div>
+        </form>
+      </section>
     </div>
   </main>
 </div>

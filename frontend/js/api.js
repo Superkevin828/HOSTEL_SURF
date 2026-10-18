@@ -247,10 +247,39 @@
     };
   }
 
+  // Shrinks a photo in the browser before upload (saves the owner's mobile data).
+  async function shrinkImage(file, max, quality) {
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error(file.name + ' is not a JPG, PNG or WebP picture.');
+    let bmp;
+    if (w.createImageBitmap) bmp = await createImageBitmap(file);
+    else {
+      bmp = await new Promise((res, rej) => {
+        const im = new Image();
+        im.onload = () => res(im);
+        im.onerror = () => rej(new Error('Could not read ' + file.name));
+        im.src = URL.createObjectURL(file);
+      });
+    }
+    const w0 = bmp.width || bmp.naturalWidth;
+    const h0 = bmp.height || bmp.naturalHeight;
+    const scale = Math.min(1, max / Math.max(w0, h0));
+    const c = document.createElement('canvas');
+    c.width = Math.round(w0 * scale);
+    c.height = Math.round(h0 * scale);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', quality));
+    if (!blob) throw new Error('Could not prepare ' + file.name);
+    return new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
+  }
+
   Object.assign(BU, {
+    shrinkImage,
     api, session, ApiError, login, register, logout, requireRole, home,
     esc, fmtMoney, fmtPhone, localPhone, waLink, timeAgo, fullDate, initials, track, debounce,
   });
+
+  // Free hosting sleeps when idle. A quiet ping on load wakes the API while the visitor is still reading.
+  if (BASE) fetch(BASE + '/api/health', { cache: 'no-store' }).catch(() => {});
 
   // Header: show the right links depending on whether someone is signed in.
   document.addEventListener('DOMContentLoaded', () => {

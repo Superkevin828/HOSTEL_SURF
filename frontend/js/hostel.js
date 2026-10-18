@@ -43,55 +43,6 @@
     document.title = h.name + ' — BUhostels';
     const prices = h.rooms.map((r) => r.price);
     const from = prices.length ? Math.min(...prices) : null;
-    const description =
-      h.name + ' in ' + h.area + ' near Busitema University. View hostel photos, room prices, availability, and contact details.';
-    const canonical = location.origin + location.pathname + '?id=' + encodeURIComponent(h.id);
-    const setMeta = (selector, attribute, value) => {
-      let meta = document.head.querySelector(selector);
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute(attribute, selector.includes('property=') ? selector.match(/property="([^"]+)"/)[1] : selector.match(/name="([^"]+)"/)[1]);
-        document.head.appendChild(meta);
-      }
-      meta.content = value;
-    };
-    setMeta('meta[name="description"]', 'name', description);
-    setMeta('meta[name="keywords"]', 'name', [h.name, h.area, 'Busitema University hostel', 'student accommodation Uganda', ...h.amenities].join(', '));
-    setMeta('meta[name="robots"]', 'name', h.status === 'published' ? 'index,follow' : 'noindex,nofollow');
-    setMeta('meta[property="og:title"]', 'property', h.name + ' — BUhostels');
-    setMeta('meta[property="og:description"]', 'property', description);
-    setMeta('meta[property="og:url"]', 'property', canonical);
-    if (h.images.length) setMeta('meta[property="og:image"]', 'property', h.images[0].url);
-    let canonicalLink = document.head.querySelector('link[rel="canonical"]');
-    if (!canonicalLink) {
-      canonicalLink = document.createElement('link');
-      canonicalLink.rel = 'canonical';
-      document.head.appendChild(canonicalLink);
-    }
-    canonicalLink.href = canonical;
-    let structuredData = document.getElementById('hostelStructuredData');
-    if (!structuredData) {
-      structuredData = document.createElement('script');
-      structuredData.id = 'hostelStructuredData';
-      structuredData.type = 'application/ld+json';
-      document.head.appendChild(structuredData);
-    }
-    structuredData.textContent = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'LodgingBusiness',
-      name: h.name,
-      description,
-      url: canonical,
-      image: h.images.map((image) => image.url),
-      telephone: '+' + h.phone,
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: h.address || undefined,
-        addressLocality: h.area,
-        addressCountry: 'UG',
-      },
-      priceRange: from == null ? undefined : 'From UGX ' + Number(from).toLocaleString('en-US') + ' per semester',
-    });
     const tel = '+' + h.phone;
     const waNum = h.whatsapp || h.phone;
     const hidden = h.status !== 'published';
@@ -132,16 +83,17 @@
 
     app.innerHTML =
       '<nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Hostels</a> / <a href="index.html?area=' + encodeURIComponent(h.area) + '">' + esc(h.area) + '</a></nav>' +
-      '<header class="h-head"><div><p class="eyebrow">' + esc(h.area) + (h.distance_km != null ? ' · ' + esc(h.distance_km) + ' km from campus' : '') + '</p>' +
+      '<header class="h-head"><div><p class="eyebrow">' + esc(h.area) + (h.distance_km != null ? ' · ' + esc(h.distance_km) + ' km from ' + (h.campus ? esc(h.campus) + ' campus' : 'campus') : '') + '</p>' +
       '<h1>' + esc(h.name) + '</h1><div class="tags">' + tags + '</div></div>' +
       '<button class="btn btn-ghost btn-sm" id="shareBtn" type="button">' + icon('share') + 'Share</button></header>' +
       '<div class="h-grid"><div>' + gallery +
         '<section class="sec"><h2>Rooms and prices</h2>' + rooms + '</section>' +
         (h.description ? '<section class="sec"><h2>About this hostel</h2><p class="body">' + esc(h.description) + '</p></section>' : '') +
         (amenities ? '<section class="sec"><h2>What is included</h2>' + amenities + '</section>' : '') +
-        (h.address ? '<section class="sec"><h2>Where to find it</h2><p class="body">' + esc(h.address) + '</p></section>' : '') +
+        ((h.address || h.latitude != null) ? '<section class="sec"><h2>Where to find it</h2>' + (h.address ? '<p class="body">' + esc(h.address) + '</p>' : '') + (h.latitude != null && h.longitude != null ? '<a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps?q=' + encodeURIComponent(h.latitude + ',' + h.longitude) + '">Open in Google Maps</a>' : '') + '</section>' : '') +
       '</div>' +
       '<aside><div class="contact-card"><h2>Contact the owner</h2>' +
+        (h.business_name || h.business_logo ? '<div class="biz">' + '<span class="avatar"' + (h.business_logo ? ' style="background-image:url(' + esc(h.business_logo) + ')"' : '') + '>' + (h.business_logo ? '' : esc(BU.initials(h.business_name || h.name))) + '</span><strong>' + esc(h.business_name || '') + '</strong></div>' : '') +
         (from != null ? '<div class="from-price"><span class="muted">Rooms from</span><strong>' + esc(fmtMoney(from)) + '</strong><span class="muted">per semester</span></div>' : '') +
         (h.contact_name ? '<div><div class="small">Contact person</div><div style="font-weight:650">' + esc(h.contact_name) + '</div></div>' : '') +
         '<div><div class="small">Phone</div><div class="num">' + esc(fmtPhone(h.phone)) + '</div></div>' +

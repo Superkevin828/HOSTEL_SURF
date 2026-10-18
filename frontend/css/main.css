@@ -561,58 +561,36 @@ textarea:focus {
 
 /* ───────── hostel card ───────── */
 .hcard {
-  --card-espresso: #493126;
-  --card-cocoa: #684735;
-  --card-cream: #f6efe4;
-  --card-line: #d8c8b7;
-  --card-shadow: 0 12px 30px -18px rgba(57, 37, 26, 0.48);
   display: flex;
   flex-direction: column;
-  background: #fffdf9;
-  border: 1px solid var(--card-line);
-  border-radius: 10px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
   overflow: hidden;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 .hcard:hover {
-  transform: translateY(-4px);
-  border-color: #b99d84;
-  box-shadow: var(--card-shadow);
-}
-.hcard:focus-within {
-  border-color: var(--card-cocoa);
-  box-shadow: 0 0 0 3px rgba(104, 71, 53, 0.16);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
 }
 .hcard-media {
   position: relative;
   display: block;
   aspect-ratio: 4 / 3;
-  overflow: hidden;
-  background: #e9dfd2;
-}
-.hcard-media::after {
-  position: absolute;
-  inset: 35% 0 0;
-  background: linear-gradient(180deg, transparent, rgba(43, 29, 21, 0.24));
-  content: '';
-  pointer-events: none;
+  background: var(--line-2);
 }
 .hcard-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.45s ease;
-}
-.hcard:hover .hcard-media img {
-  transform: scale(1.035);
 }
 .ph {
   width: 100%;
   height: 100%;
   display: grid;
   place-items: center;
-  background: #684735 repeating-linear-gradient(135deg, rgba(246, 239, 228, 0.08) 0 2px, transparent 2px 14px);
-  color: rgba(246, 239, 228, 0.9);
+  background: var(--forest-2) repeating-linear-gradient(135deg, rgba(244, 239, 229, 0.06) 0 2px, transparent 2px 14px);
+  color: rgba(244, 239, 229, 0.85);
 }
 .ph span {
   font-family: var(--serif);
@@ -625,20 +603,18 @@ textarea:focus {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: var(--card-cream);
-  color: var(--card-espresso);
+  background: var(--bone);
+  color: var(--clay-2);
   font: 700 11px/1 var(--sans);
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  padding: 7px 9px;
-  border: 1px solid rgba(73, 49, 38, 0.12);
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(43, 29, 21, 0.12);
+  padding: 6px 8px;
+  border-radius: 2px;
 }
 .tag-full {
   left: auto;
   right: 10px;
-  color: #8a352c;
+  color: var(--bad);
 }
 .photo-count {
   position: absolute;
@@ -647,80 +623,72 @@ textarea:focus {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(55, 37, 28, 0.86);
-  color: var(--card-cream);
+  background: rgba(22, 34, 30, 0.78);
+  color: var(--bone);
   font-size: 12.5px;
   font-weight: 600;
-  padding: 5px 9px;
-  border: 1px solid rgba(255, 253, 249, 0.24);
-  border-radius: 5px;
-  backdrop-filter: blur(6px);
+  padding: 4px 8px;
+  border-radius: 2px;
 }
 .hcard-body {
   display: flex;
   flex-direction: column;
-  gap: 11px;
-  padding: 18px 18px 20px;
+  gap: 10px;
+  padding: 16px 16px 18px;
   flex: 1;
 }
 .hcard h3 {
-  font-size: 22px;
-  color: var(--card-espresso);
+  font-size: 21px;
 }
 .hcard h3 a {
   text-decoration: none;
 }
 .hcard h3 a:hover {
-  color: var(--card-cocoa);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.hcard .meta {
+.meta {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #74665b;
+  color: var(--mute);
   font-size: 14px;
 }
-.hcard .meta svg {
-  color: var(--card-cocoa);
-}
-.hcard .facts {
+.facts {
   font-size: 13.5px;
-  color: #74665b;
+  color: var(--mute);
 }
-.hcard .facts b {
-  color: var(--card-espresso);
+.facts b {
+  color: var(--ink);
   font-weight: 650;
 }
-.hcard .price {
+.price {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
   gap: 4px 8px;
   margin-top: auto;
   padding-top: 12px;
-  border-top: 1px solid #e6ddd2;
+  border-top: 1px dashed var(--line);
 }
-.hcard .price .from {
+.price .from {
   font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--mute);
 }
-.hcard .price strong {
+.price strong {
   font-family: var(--serif);
-  color: var(--card-espresso);
-  font-size: 23px;
+  font-size: 22px;
   font-weight: 560;
   font-variant-numeric: lining-nums tabular-nums;
 }
-.hcard .price .per {
+.price .per {
   font-size: 13px;
   color: var(--mute);
 }
-.hcard .price.none {
+.price.none {
   color: var(--mute);
   font-size: 14px;
 }
@@ -730,34 +698,6 @@ textarea:focus {
 }
 .hcard-actions .btn {
   flex: 1;
-  border-radius: 5px;
-}
-.hcard-actions .btn-solid {
-  background: var(--card-espresso);
-}
-.hcard-actions .btn-solid:hover:not(:disabled) {
-  background: var(--card-cocoa);
-}
-.hcard-actions .btn-wa {
-  border-color: #b99d84;
-  color: var(--card-espresso);
-}
-.hcard-actions .btn-wa:hover {
-  background: var(--card-cocoa);
-  border-color: var(--card-cocoa);
-  color: var(--card-cream);
-}
-@media (prefers-reduced-motion: reduce) {
-  .hcard,
-  .hcard-media img {
-    transition: none;
-  }
-  .hcard:hover {
-    transform: none;
-  }
-  .hcard:hover .hcard-media img {
-    transform: none;
-  }
 }
 
 .empty {
@@ -1272,83 +1212,93 @@ dialog.lightbox {
   padding: 12px 14px;
   font-size: 14.5px;
 }
-.policy-check {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  color: var(--mute);
-  font-size: 14px;
-  line-height: 1.45;
+
+/* ───────── sign-up steps ───────── */
+.step {
+  display: grid;
+  gap: 16px;
 }
-.policy-check input {
-  width: 17px;
-  height: 17px;
-  margin: 2px 0 0;
-  flex: none;
-  accent-color: var(--forest);
+.step[hidden] {
+  display: none;
 }
-.policy-check a,
-.policy-content a {
-  color: var(--clay-2);
-  font-weight: 650;
-  text-underline-offset: 3px;
+.choices {
+  display: grid;
+  gap: 12px;
+  margin-top: 6px;
 }
-.policy-page {
-  max-width: 900px;
-  padding-top: 48px;
-  padding-bottom: 72px;
-}
-.policy-head {
-  max-width: 680px;
-  margin-bottom: 26px;
-}
-.policy-head h1 {
-  margin-top: 10px;
-  font-size: clamp(34px, 5vw, 52px);
-}
-.policy-head > p:last-child {
-  margin-top: 14px;
-  color: var(--mute);
-  font-size: 17px;
-}
-.policy-content {
-  padding: clamp(20px, 4vw, 40px);
+.choice {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  padding: 18px 20px;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-left: 4px solid var(--line);
+  border-radius: 3px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
 }
-.policy-content h2 {
-  margin: 30px 0 10px;
+.choice:hover {
+  border-color: var(--ink);
+  border-left-color: var(--clay);
+}
+.choice strong {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 560;
+}
+.choice span {
+  color: var(--mute);
+  font-size: 14.5px;
+}
+.step-actions {
+  display: flex;
+  gap: 10px;
+}
+.step-actions .btn-solid,
+.step-actions .btn-clay {
+  flex: 1;
+}
+.logo-pick {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.logo-prev {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--forest) center / cover no-repeat;
+  color: var(--bone);
+  font-family: var(--serif);
   font-size: 24px;
 }
-.policy-content h2:first-of-type {
-  margin-top: 22px;
-}
-.policy-content p,
-.policy-content li {
-  color: #4e5852;
-}
-.policy-content p + p {
-  margin-top: 12px;
-}
-.policy-content ul,
-.policy-content ol {
-  padding-left: 24px;
-}
-.policy-content li + li {
-  margin-top: 8px;
-}
-.policy-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 20px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--line-2);
-}
-.policy-updated {
-  margin-top: 20px;
-  color: var(--mute);
+.logo-pick .hint {
+  margin-top: 6px;
   font-size: 13px;
+  color: var(--mute);
+}
+.avatar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--forest) center / cover no-repeat;
+  color: var(--bone);
+  font-family: var(--serif);
+  font-size: 16px;
+  overflow: hidden;
+}
+.avatar.lg {
+  width: 72px;
+  height: 72px;
+  font-size: 24px;
 }
 
 /* ───────── responsive ───────── */
@@ -1441,15 +1391,6 @@ dialog.lightbox {
     display: none;
   }
 }
-@media (max-width: 560px) {
-  .policy-page {
-    padding-top: 32px;
-    padding-bottom: 48px;
-  }
-  .policy-content {
-    padding: 20px 16px;
-  }
-}
 @media (max-width: 600px) {
   .wrap {
     padding: 0 16px;
@@ -1483,3 +1424,6 @@ dialog.lightbox {
     transition: none !important;
   }
 }
+
+.biz{display:flex;align-items:center;gap:12px}
+.biz strong{font-family:var(--serif);font-size:18px}

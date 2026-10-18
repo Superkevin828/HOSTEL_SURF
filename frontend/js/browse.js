@@ -4,7 +4,7 @@
   const { api, esc, fmtMoney, icon, hostelCard, debounce } = BU;
   const $ = (s) => document.querySelector(s);
 
-  const EMPTY = { q: '', area: '', min: '', max: '', type: '', gender: '', dist: '', amen: [], sort: 'recommended' };
+  const EMPTY = { q: '', campus: '', area: '', min: '', max: '', type: '', gender: '', dist: '', amen: [], sort: 'recommended' };
   const state = Object.assign({}, EMPTY, { amen: [] });
   let meta = { amenities: [], roomTypes: [], genders: [] };
   let facets = null;
@@ -42,6 +42,7 @@
   function readUrl() {
     const p = new URLSearchParams(location.search);
     state.q = p.get('q') || '';
+    state.campus = p.get('campus') || '';
     state.area = p.get('area') || '';
     state.min = p.get('min') || '';
     state.max = p.get('max') || '';
@@ -54,6 +55,7 @@
   function writeUrl() {
     const p = new URLSearchParams();
     if (state.q) p.set('q', state.q);
+    if (state.campus) p.set('campus', state.campus);
     if (state.area) p.set('area', state.area);
     if (state.min) p.set('min', state.min);
     if (state.max) p.set('max', state.max);
@@ -91,6 +93,9 @@
 
   function fillAreas() {
     if (!facets) return;
+    const cs = (facets.campuses && facets.campuses.length ? facets.campuses : (meta.campuses || []).map((n) => ({ name: n })));
+    $('#fcampus').innerHTML = '<option value="">Any campus</option>' + cs.map((c) => '<option value="' + esc(c.name) + '">' + esc(c.name) + ' campus' + (c.count != null ? ' (' + c.count + ')' : '') + '</option>').join('');
+    $('#fcampus').value = state.campus;
     const opts = '<option value="">Any area</option>' + facets.areas.map((a) => '<option value="' + esc(a.name) + '">' + esc(a.name) + ' (' + a.count + ')</option>').join('');
     ['#farea', '#harea'].forEach((id) => {
       const el = $(id);
@@ -102,6 +107,7 @@
   function syncControls() {
     $('#fq').value = state.q;
     $('#hq').value = state.q;
+    $('#fcampus').value = state.campus;
     $('#farea').value = state.area;
     $('#harea').value = state.area;
     $('#fmin').value = state.min;
@@ -123,6 +129,10 @@
     });
     $('#fq').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') BU.track('search', { q: state.q });
+    });
+    $('#fcampus').addEventListener('change', (e) => {
+      state.campus = e.target.value;
+      load(true);
     });
     $('#farea').addEventListener('change', (e) => {
       state.area = e.target.value;
@@ -204,6 +214,7 @@
   function activeFilters() {
     const out = [];
     if (state.q) out.push({ k: 'q', label: '“' + state.q + '”' });
+    if (state.campus) out.push({ k: 'campus', label: state.campus + ' campus' });
     if (state.area) out.push({ k: 'area', label: state.area });
     if (state.min || state.max) {
       const a = state.min ? fmtMoney(state.min) : 'Any';
@@ -232,6 +243,7 @@
   function query(p) {
     const q = new URLSearchParams();
     if (state.q) q.set('q', state.q);
+    if (state.campus) q.set('campus', state.campus);
     if (state.area) q.set('area', state.area);
     if (state.min) q.set('minPrice', state.min);
     if (state.max) q.set('maxPrice', state.max);

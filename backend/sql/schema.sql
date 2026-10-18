@@ -12,16 +12,8 @@ create table if not exists public.profiles (
   phone       text,
   role        text not null default 'owner'   check (role in ('admin', 'owner')),
   status      text not null default 'pending' check (status in ('pending', 'approved', 'suspended')),
-  terms_accepted_at  timestamptz,
-  privacy_accepted_at timestamptz,
-  policy_version text,
   created_at  timestamptz not null default now()
 );
-
--- Keep upgrades safe for projects that created profiles before policy consent was added.
-alter table public.profiles add column if not exists terms_accepted_at timestamptz;
-alter table public.profiles add column if not exists privacy_accepted_at timestamptz;
-alter table public.profiles add column if not exists policy_version text;
 
 create table if not exists public.hostels (
   id           uuid primary key default gen_random_uuid(),
@@ -216,3 +208,21 @@ revoke execute on function public.site_stats(int)        from public, anon, auth
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('hostel-images', 'hostel-images', true, 6291456, array['image/jpeg', 'image/png', 'image/webp'])
 on conflict (id) do nothing;
+
+-- ───────────────────────── update 1: business profile, campus, map location ─────────────────────────
+-- (also available on its own as sql/002_owner_profile.sql)
+
+alter table public.profiles
+  add column if not exists business_name text,
+  add column if not exists campus        text,
+  add column if not exists location      text,
+  add column if not exists address       text,
+  add column if not exists avatar_url    text,
+  add column if not exists avatar_path   text;
+
+alter table public.hostels
+  add column if not exists campus    text,
+  add column if not exists latitude  numeric(9,6),
+  add column if not exists longitude numeric(9,6);
+
+create index if not exists hostels_campus_idx on public.hostels (campus);

@@ -5,6 +5,7 @@ const { admin, BUCKET } = require('../supabase');
 const { must, httpError } = require('../db');
 const { requireAuth, requireRole, requireApproved } = require('../middleware/auth');
 const { logEvent } = require('../events');
+const { publicProfile } = require('../accounts');
 const cache = require('../cache');
 const { isUuid, int, clamp, parseHostel, parseRoom, shapeHostel } = require('../util');
 
@@ -192,6 +193,49 @@ router.post('/hostels/:id/images', requireApproved, upload.array('images', 8), a
     meta: actorMeta(req, { hostel: hostel.name, count: created.length }),
   });
   res.status(201).json({ items: created });
+});
+
+// ───────────── business logo / profile picture ─────────────
+
+const avatarUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 4 * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, cb) => {
+    if (/^image\/(jpeg|png|webp)$/.test(file.mimetype)) return cb(null, true);
+    cb(httpError(400, 'Only JPG, PNG or WebP pictures are allowed.'));
+  },
+});
+
+router.post('/avatar', avatarUpload.single('avatar'), async (req, res) => {
+  const file = req.file;
+  if (!file) throw httpError(400, 'Choose a picture.');
+  const ext = file.mimetype === 'image/png' ? 'png' : file.mimetype === 'image/webp' ? 'webp' : 'jpg';
+  const objectPath = `avatars/${req.user.id}/${randomUUID()}.${ext}`;
+  const up = await admin.storage
+    .from(BUCKET)
+    .upload(objectPath, file.buffer, { contentType: file.mimetype, cacheControl: '31536000', upsert: false });
+  if (up.error) {
+    console.error('[avatar] upload failed:', up.error.message);
+    throw httpError(500, 'The upload failed. Please try again.');
+  }
+  const { data } = admin.storage.from(BUCKET).getPublicUrl(objectPath);
+  const updated = must(
+    await admin.from('profiles').update({ avatar_url: data.publicUrl, avatar_path: objectPath }).eq('id', req.user.id).select().single(),
+    'save avatar'
+  );
+  if (req.user.avatar_path) await admin.storage.from(BUCKET).remove([req.user.avatar_path]);
+  cache.bust();
+  res.json({ profile: publicProfile(updated) });
+});
+
+router.delete('/avatar', async (req, res) => {
+  if (req.user.avatar_path) await admin.storage.from(BUCKET).remove([req.user.avatar_path]);
+  const updated = must(
+    await admin.from('profiles').update({ avatar_url: null, avatar_path: null }).eq('id', req.user.id).select().single(),
+    'remove avatar'
+  );
+  cache.bust();
+  res.json({ profile: publicProfile(updated) });
 });
 
 async function ownImage(req, imageId) {

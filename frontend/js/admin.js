@@ -103,6 +103,7 @@
           ? '<div class="panel"><div class="ph2"><h2>Waiting for your approval</h2><a class="link" href="#owners">All owners</a></div><div class="tbl-wrap"><table class="tbl"><tbody>' +
             o.pending.map((x) =>
               '<tr><td><div class="cell-main">' + esc(x.full_name) + '</div><div class="cell-sub">' + esc(fmtPhone(x.phone)) + ' · ' + esc(x.email) + '</div></td>' +
+              '<td><div class="cell-main">' + esc(x.business_name || '—') + '</div><div class="cell-sub">' + esc([x.campus && x.campus + ' campus', x.location].filter(Boolean).join(' · ')) + '</div></td>' +
               '<td class="cell-sub">Signed up ' + esc(timeAgo(x.created_at)) + '</td>' +
               '<td><div class="row-acts"><button class="btn btn-solid btn-sm" data-approve="' + esc(x.id) + '">Approve</button></div></td></tr>').join('') +
             '</tbody></table></div></div>'
@@ -371,6 +372,7 @@
   }
 
   // ───────── owners ─────────
+  const CAMPUS_LIST = ['Busitema', 'Nagongera', 'Arapai', 'Mbale', 'Pallisa', 'Namasagali'];
   const STATUS = { approved: ['ok', 'Approved'], pending: ['warn', 'Waiting'], suspended: ['bad', 'Suspended'] };
 
   async function viewOwners() {
@@ -385,7 +387,8 @@
         $('#oBody').innerHTML = list.length
           ? list.map((o) => {
               const s = STATUS[o.status] || ['', o.status];
-              return '<tr><td><div class="cell-main">' + esc(o.full_name) + '</div><div class="cell-sub">' + esc(o.email) + '</div></td>' +
+              return '<tr><td><div class="who-cell"><span class="avatar sm"' + (o.avatar_url ? ' style="background-image:url(' + esc(o.avatar_url) + ')"' : '') + '>' + (o.avatar_url ? '' : esc(BU.initials(o.business_name || o.full_name))) + '</span><div><div class="cell-main">' + esc(o.full_name) + '</div><div class="cell-sub">' + esc(o.email) + '</div></div></div></td>' +
+                '<td><div class="cell-main">' + esc(o.business_name || '—') + '</div><div class="cell-sub">' + esc([o.campus && o.campus + ' campus', o.location].filter(Boolean).join(' · ')) + '</div></td>' +
                 '<td>' + esc(fmtPhone(o.phone)) + '</td><td class="num">' + o.hostels_count + '</td>' +
                 '<td class="cell-sub">' + esc(timeAgo(o.created_at)) + '</td><td><span class="badge ' + s[0] + '">' + s[1] + '</span></td>' +
                 '<td><div class="row-acts">' +
@@ -401,7 +404,7 @@
       main.innerHTML =
         '<div class="dhead"><div><h1>Owners</h1><p>Approve new accounts, suspend, reset passwords.</p></div>' +
         '<div class="acts"><button class="btn btn-solid" id="addOwner" type="button">' + icon('plus') + 'Add owner</button></div></div>' +
-        '<div class="panel" style="margin-top:0"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Owner</th><th>Phone</th><th class="num">Hostels</th><th>Joined</th><th>Status</th><th></th></tr></thead><tbody id="oBody"></tbody></table></div></div>';
+        '<div class="panel" style="margin-top:0"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Owner</th><th>Business</th><th>Phone</th><th class="num">Hostels</th><th>Joined</th><th>Status</th><th></th></tr></thead><tbody id="oBody"></tbody></table></div></div>';
       draw();
 
       const reload = async () => {
@@ -419,7 +422,10 @@
             '<div class="field"><label for="n1">Full name</label><input id="n1" name="full_name" type="text" required></div>' +
             '<div class="field"><label for="n2">Phone</label><input id="n2" name="phone" type="tel" placeholder="0772 123 456" required></div>' +
             '<div class="field"><label for="n3">Email</label><input id="n3" name="email" type="email" required></div>' +
-            '<div class="field"><label for="n4">Password</label><input id="n4" name="password" type="text" minlength="8" required><span class="hint">At least 8 characters.</span></div>',
+            '<div class="field"><label for="n4">Password</label><input id="n4" name="password" type="text" minlength="8" required><span class="hint">At least 8 characters.</span></div>' +
+            '<div class="field"><label for="n5">Hostel or business name</label><input id="n5" name="business_name" type="text" required></div>' +
+            '<div class="field"><label for="n6">Campus</label><select id="n6" name="campus" required><option value="">Choose a campus</option>' + CAMPUS_LIST.map((c) => '<option value="' + esc(c) + '">' + esc(c) + ' campus</option>').join('') + '</select></div>' +
+            '<div class="field"><label for="n7">Area or town</label><input id="n7" name="location" type="text" required></div>',
         });
         if (!v) return;
         try {

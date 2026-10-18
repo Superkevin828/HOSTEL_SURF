@@ -21,7 +21,7 @@
       ? '<img src="' + esc(h.cover) + '" alt="' + esc(h.name) + '" loading="lazy">'
       : '<div class="ph" aria-hidden="true"><span>' + esc(initials(h.name)) + '</span></div>';
     const full = h.rooms_count > 0 && h.available_total === 0;
-    const where = esc(h.area) + (h.distance_km != null ? ' · ' + esc(h.distance_km) + ' km from campus' : '');
+    const where = esc(h.area) + (h.distance_km != null ? ' · ' + esc(h.distance_km) + ' km from ' + (h.campus ? esc(h.campus) + ' campus' : 'campus') : '');
     const price =
       h.min_price != null
         ? '<div class="price"><span class="from">From</span><strong>' + esc(fmtMoney(h.min_price)) + '</strong><span class="per">per semester</span></div>'
@@ -66,10 +66,7 @@
         '<p>An independent listing site that helps Busitema University students find a place to stay and reach the owner directly.</p></div>' +
         '<ul><li><a href="index.html#results">Browse hostels</a></li>' +
         '<li><a href="login.html#register">List your hostel</a></li>' +
-        '<li><a href="login.html">Owner sign in</a></li>' +
-        '<li><a href="documentation.html">How BUhostels works</a></li>' +
-        '<li><a href="terms.html">Terms of Use</a></li>' +
-        '<li><a href="privacy.html">Privacy Policy</a></li></ul>' +
+        '<li><a href="login.html">Owner sign in</a></li></ul>' +
       '</div></footer>'
     );
   };

@@ -1,9 +1,9 @@
 const { admin, authClient } = require('./supabase');
 const { httpError } = require('./db');
-const { EMAIL_RE, str, normalizePhone } = require('./util');
+const { EMAIL_RE, str, normalizePhone, parseBusiness } = require('./util');
 
 // Creates an auth user + owner profile. Used by public sign-up (pending) and admin "add owner" (approved).
-async function createOwnerAccount({ email, password, full_name, phone, status = 'pending', accepted_policies = false }) {
+async function createOwnerAccount({ email, password, full_name, phone, status = 'pending', ...rest }) {
   const mail = str(email, 120).toLowerCase();
   const name = str(full_name, 80);
   const tel = normalizePhone(phone);
@@ -14,6 +14,7 @@ async function createOwnerAccount({ email, password, full_name, phone, status = 
   if (typeof password !== 'string' || password.length < 8) {
     throw httpError(400, 'Password must be at least 8 characters.');
   }
+  const business = parseBusiness(rest);
 
   const created = await admin.auth.admin.createUser({
     email: mail,
@@ -31,21 +32,7 @@ async function createOwnerAccount({ email, password, full_name, phone, status = 
 
   const inserted = await admin
     .from('profiles')
-    .insert({
-      id: created.data.user.id,
-      email: mail,
-      full_name: name,
-      phone: tel,
-      role: 'owner',
-      status,
-      ...(accepted_policies
-        ? {
-            terms_accepted_at: new Date().toISOString(),
-            privacy_accepted_at: new Date().toISOString(),
-            policy_version: '2026-10-17',
-          }
-        : {}),
-    })
+    .insert({ id: created.data.user.id, email: mail, full_name: name, phone: tel, role: 'owner', status, ...business })
     .select()
     .single();
   if (inserted.error) {
@@ -70,6 +57,11 @@ const publicProfile = (p) => ({
   phone: p.phone,
   role: p.role,
   status: p.status,
+  business_name: p.business_name || null,
+  campus: p.campus || null,
+  location: p.location || null,
+  address: p.address || null,
+  avatar_url: p.avatar_url || null,
 });
 
 module.exports = { createOwnerAccount, signIn, publicProfile };

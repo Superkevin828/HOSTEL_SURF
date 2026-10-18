@@ -15,6 +15,9 @@ const AMENITIES = [
   'Furnished',
 ];
 
+// Busitema University campuses. Edit this list if a campus is added or renamed.
+const CAMPUSES = ['Busitema', 'Nagongera', 'Arapai', 'Mbale', 'Pallisa', 'Namasagali'];
+
 const ROOM_TYPES = [
   { value: 'single', label: 'Single room' },
   { value: 'double', label: 'Double room' },
@@ -78,6 +81,22 @@ function parseHostel(b = {}) {
     if (!whatsapp) errors.push('The WhatsApp number does not look right.');
   }
 
+  const campus = CAMPUSES.includes(b.campus) ? b.campus : '';
+  if (!campus) errors.push('Choose the campus this hostel is near.');
+
+  let latitude = null;
+  let longitude = null;
+  if (num(b.latitude) != null || num(b.longitude) != null) {
+    latitude = num(b.latitude);
+    longitude = num(b.longitude);
+    if (latitude == null || longitude == null || Math.abs(latitude) > 90 || Math.abs(longitude) > 180) {
+      errors.push('The map location does not look right. Use the location button again, or clear it.');
+    } else {
+      latitude = Math.round(latitude * 1e6) / 1e6;
+      longitude = Math.round(longitude * 1e6) / 1e6;
+    }
+  }
+
   let distance = num(b.distance_km);
   if (distance != null) {
     if (distance < 0 || distance > 100) errors.push('Distance should be between 0 and 100 km.');
@@ -94,6 +113,9 @@ function parseHostel(b = {}) {
     description: str(b.description, 2000) || null,
     area,
     address: str(b.address, 160) || null,
+    campus,
+    latitude,
+    longitude,
     distance_km: distance,
     phone,
     whatsapp,
@@ -101,6 +123,19 @@ function parseHostel(b = {}) {
     amenities,
     status,
   };
+}
+
+// The business details every owner gives when signing up (and can edit later).
+function parseBusiness(b = {}) {
+  const errors = [];
+  const business_name = str(b.business_name, 80);
+  if (business_name.length < 2) errors.push('Enter your hostel or business name.');
+  const campus = CAMPUSES.includes(b.campus) ? b.campus : '';
+  if (!campus) errors.push('Choose the campus your hostel is closest to.');
+  const location = str(b.location, 60);
+  if (location.length < 2) errors.push('Enter the area or town where your hostel is.');
+  fail(errors);
+  return { business_name, campus, location, address: str(b.address, 160) || null };
 }
 
 function parseRoom(b = {}) {
@@ -136,6 +171,7 @@ function shapeHostel(row) {
 
 module.exports = {
   AMENITIES,
+  CAMPUSES,
   ROOM_TYPES,
   GENDERS,
   EMAIL_RE,
@@ -146,6 +182,7 @@ module.exports = {
   clamp,
   normalizePhone,
   parseHostel,
+  parseBusiness,
   parseRoom,
   shapeHostel,
 };
