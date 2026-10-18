@@ -35,8 +35,52 @@
       toast(e.message, 'err');
     }
     paintBanner();
+    BU.markPending(me);
+    if (BU.takeApprovalNotice(me)) approvedPopup();
+    watchApproval();
     window.addEventListener('hashchange', route);
     route();
+  }
+
+  // Top-centre pop-up, visible for 5 seconds.
+  function approvedPopup() {
+    const old = document.getElementById('approvePop');
+    if (old) old.remove();
+    const el = document.createElement('div');
+    el.id = 'approvePop';
+    el.className = 'approve-pop';
+    el.setAttribute('role', 'status');
+    el.innerHTML = icon('check') + '<div><b>You are approved!</b><span>You can now add and edit your hostels.</span></div>';
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 400);
+    }, 5000);
+  }
+
+  // While the owner is on the site, check every 20 s (and when they come back to the tab) whether the admin approved them.
+  function watchApproval() {
+    let busyCheck = false;
+    async function check() {
+      if (busyCheck || document.hidden) return;
+      if (me.status === 'approved' && !localStorage.getItem('buh.pending.' + me.id)) return;
+      busyCheck = true;
+      try {
+        const r = await api('/auth/me');
+        const was = me.status;
+        me = r.profile;
+        BU.session.set(Object.assign({}, BU.session.get(), { profile: me }));
+        if (was !== me.status) paintBanner();
+        if (BU.takeApprovalNotice(me)) approvedPopup();
+      } catch (e) {
+        /* try again next time */
+      } finally {
+        busyCheck = false;
+      }
+    }
+    setInterval(check, 20000);
+    document.addEventListener('visibilitychange', check);
   }
 
   function paintWho() {

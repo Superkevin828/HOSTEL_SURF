@@ -706,3 +706,11 @@ body.dashboard {
 
 .who-cell{display:flex;align-items:center;gap:10px}
 .avatar.sm{width:34px;height:34px;font-size:13px}
+
+/* approval pop-up */
+.approve-pop{position:fixed;top:16px;left:50%;z-index:200;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 32px);padding:14px 20px;background:var(--forest);color:var(--bone);border-left:4px solid var(--brass);border-radius:4px;box-shadow:0 14px 40px rgba(29,58,49,.35);transform:translate(-50%,-140%);opacity:0;transition:transform .35s ease,opacity .35s ease}
+.approve-pop.show{transform:translate(-50%,0);opacity:1}
+.approve-pop svg{flex:none;width:22px;height:22px;color:var(--brass)}
+.approve-pop b{display:block;font-family:var(--serif);font-size:18px;font-weight:560}
+.approve-pop span{font-size:14px;opacity:.85}
+@media (prefers-reduced-motion:reduce){.approve-pop{transition:none}}

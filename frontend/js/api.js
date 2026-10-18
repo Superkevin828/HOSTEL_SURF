@@ -131,14 +131,33 @@
 
   const home = (role) => (role === 'admin' ? 'admin.html' : 'owner.html');
 
+  // Remembers (in this browser) that an owner was waiting for approval, so we can greet them once they are approved.
+  function markPending(profile) {
+    try {
+      if (profile && profile.role === 'owner' && profile.status === 'pending') localStorage.setItem('buh.pending.' + profile.id, '1');
+    } catch (e) {}
+  }
+  function takeApprovalNotice(profile) {
+    try {
+      const k = 'buh.pending.' + profile.id;
+      if (profile.role === 'owner' && profile.status === 'approved' && localStorage.getItem(k)) {
+        localStorage.removeItem(k);
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
   async function login(email, password) {
     const r = await send('/auth/login', { method: 'POST', body: { email, password } });
     session.set({ ...r.session, profile: r.profile });
+    markPending(r.profile);
     return r.profile;
   }
   async function register(fields) {
     const r = await send('/auth/register', { method: 'POST', body: fields });
     session.set({ ...r.session, profile: r.profile });
+    markPending(r.profile);
     return r.profile;
   }
   function logout() {
@@ -273,7 +292,7 @@
   }
 
   Object.assign(BU, {
-    shrinkImage,
+    shrinkImage, markPending, takeApprovalNotice,
     api, session, ApiError, login, register, logout, requireRole, home,
     esc, fmtMoney, fmtPhone, localPhone, waLink, timeAgo, fullDate, initials, track, debounce,
   });
