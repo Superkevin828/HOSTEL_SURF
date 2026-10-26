@@ -298,7 +298,7 @@
   });
 
   // Free hosting sleeps when idle. A quiet ping on load wakes the API while the visitor is still reading.
-  if (BASE) fetch(BASE + '/api/health', { cache: 'no-store' }).catch(() => {});
+  fetch(BASE + '/api/health', { cache: 'no-store' }).catch(() => {});
 
   // Header: show the right links depending on whether someone is signed in.
   document.addEventListener('DOMContentLoaded', () => {

@@ -20,6 +20,17 @@ if (missing.length) {
 
 const app = express();
 app.set('trust proxy', 1);
+// Behind the Cloudflare Pages proxy every request arrives from Cloudflare's IPs. When the proxy proves who it is
+// (shared PROXY_SECRET), use the visitor IP it forwards so rate limits stay per visitor.
+app.use((req, res, next) => {
+  const secret = process.env.PROXY_SECRET;
+  const sent = req.headers['x-proxy-secret'];
+  if (secret && typeof sent === 'string' && sent.length === secret.length && require('crypto').timingSafeEqual(Buffer.from(sent), Buffer.from(secret))) {
+    const ip = String(req.headers['x-client-ip'] || '').trim();
+    if (ip) Object.defineProperty(req, 'ip', { value: ip, configurable: true });
+  }
+  next();
+});
 app.disable('x-powered-by');
 app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
