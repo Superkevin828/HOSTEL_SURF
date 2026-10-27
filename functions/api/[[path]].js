@@ -4,7 +4,7 @@
 // Optional env vars (Pages > Settings > Variables and Secrets):
 //   API_ORIGIN    default https://buhostelsapi.onrender.com
 //   PROXY_SECRET  same value as on Render, so the backend can see each visitor's real IP
-const DEFAULT_ORIGIN = 'https://buhostelsapi.onrender.com';
+const DEFAULT_ORIGIN = 'https://buhostels-api.onrender.com';
 const DROP = ['host', 'origin', 'referer', 'x-forwarded-for', 'x-forwarded-proto', 'x-real-ip', 'x-proxy-secret', 'x-client-ip'];
 
 export async function onRequest({ request, env }) {
