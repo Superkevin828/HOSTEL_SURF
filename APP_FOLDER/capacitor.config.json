@@ -1,0 +1,13 @@
+{
+  "appId": "com.buhostels.app",
+  "appName": "BUhostels",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
