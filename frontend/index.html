@@ -11,50 +11,117 @@
 <meta property="og:title" content="BUhostels — Find a hostel near Busitema University">
 <meta property="og:description" content="Compare hostel rooms, prices and photos around Busitema University, then contact owners directly.">
 <meta property="og:image" content="https://buhostels.example/favicon.svg">
-<meta name="theme-color" content="#1d3a31">
+<meta name="theme-color" content="#050505">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://images.unsplash.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/home.css">
 </head>
-<body>
+<body class="home">
 
-<header class="topbar">
+<a class="skip-link" href="#results">Skip to hostels</a>
+
+<div class="announce">
+  <div class="wrap">
+    <span>Free to browse</span>
+    <span class="dot" aria-hidden="true"></span>
+    <span>Prices in UGX</span>
+    <span class="dot extra" aria-hidden="true"></span>
+    <span class="extra">Real room photos</span>
+    <span class="dot extra" aria-hidden="true"></span>
+    <span class="extra">Message owners directly</span>
+  </div>
+</div>
+
+<header class="topbar" id="topbar">
   <div class="wrap">
     <a class="mark" href="index.html" aria-label="BUhostels home"><span class="mark-box">BU</span><em>hostels</em></a>
     <nav class="nav" aria-label="Main">
-      <a href="#results" class="hide-sm">Browse</a>
-      <span id="navAuth" style="display:contents">
-        <a href="login.html#register" class="hide-sm">List your hostel</a>
-        <a class="nav-cta" href="login.html">Sign in</a>
-      </span>
+      <a href="#results">Browse</a>
+      <a href="login.html#register">List your hostel</a>
     </nav>
+    <div class="nav-tools">
+      <button class="nav-search" id="navSearch" type="button" aria-label="Search hostels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      </button>
+      <span id="navAuth" class="nav-auth">
+        <a href="login.html">Sign in</a>
+      </span>
+      <a class="nav-book" href="#results">Book now</a>
+    </div>
   </div>
 </header>
 
 <section class="hero">
-  <div class="wrap hero-grid">
-    <div>
-      <p class="eyebrow">Busitema University · student housing</p>
-      <h1>Hostels near campus, with the prices up front.</h1>
-      <p class="lede">Compare rooms by price and distance, look through real photos, then message the owner on WhatsApp. No more asking around for numbers.</p>
-      <form id="heroSearch" class="hero-search" role="search">
-        <div class="hs-field">
-          <span id="heroIcon"></span>
-          <label class="sr" for="hq">Hostel name or area</label>
-          <input id="hq" type="search" placeholder="Hostel name or area" autocomplete="off">
+  <div class="wrap hero-inner">
+    <p class="eyebrow">Busitema University · student housing</p>
+    <h1 class="hero-title">Hostels near campus, with the <span class="gold">prices up front.</span></h1>
+    <p class="lede">Compare rooms by price and distance, look through real photos, then message the owner on WhatsApp. No more asking around for numbers.</p>
+
+    <div class="hero-stage" data-reveal>
+      <figure class="hero-card left" aria-hidden="true">
+        <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80" alt="" loading="eager">
+      </figure>
+      <figure class="hero-card right" aria-hidden="true">
+        <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=600&q=80" alt="" loading="eager">
+      </figure>
+
+      <div class="hero-media">
+        <div class="hero-visual">
+          <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=1400&q=80" alt="A student room with a bed, desk and warm natural light" fetchpriority="high">
+          <div class="hero-shade" aria-hidden="true"></div>
+          <span class="hero-pill"><i aria-hidden="true"></i>Busitema University</span>
+          <a class="hero-play" href="#results" aria-label="Browse hostel listings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+          </a>
         </div>
-        <label class="sr" for="harea">Area</label>
-        <select id="harea"><option value="">Any area</option></select>
-        <button class="btn btn-clay" type="submit">Search</button>
-      </form>
+
+        <form id="heroSearch" class="hero-search" role="search">
+          <div class="hs-field">
+            <span id="heroIcon"></span>
+            <label class="sr" for="hq">Hostel name or area</label>
+            <input id="hq" type="search" placeholder="Hostel name or area" autocomplete="off">
+          </div>
+          <label class="sr" for="harea">Area</label>
+          <select id="harea"><option value="">Any area</option></select>
+          <button class="btn btn-clay" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="rating-line" data-reveal>
+      <span class="stars" aria-hidden="true">★★★★★</span>
+      <p><strong>4.9</strong> out of 5 from student reviews</p>
     </div>
   </div>
 </section>
 
-<main class="wrap" id="results">
+<div class="marquee" aria-label="Why students use BUhostels">
+  <div class="marquee-track">
+    <div class="marquee-run">
+      <span>Pick your room</span><span class="spark" aria-hidden="true">✦</span>
+      <span>Rooms near campus</span><span class="spark" aria-hidden="true">✦</span>
+      <span>Prices up front</span><span class="spark" aria-hidden="true">✦</span>
+      <span>Real photos</span><span class="spark" aria-hidden="true">✦</span>
+      <span>Straight to the owner</span><span class="spark" aria-hidden="true">✦</span>
+    </div>
+    <div class="marquee-run" aria-hidden="true">
+      <span>Pick your room</span><span class="spark">✦</span>
+      <span>Rooms near campus</span><span class="spark">✦</span>
+      <span>Prices up front</span><span class="spark">✦</span>
+      <span>Real photos</span><span class="spark">✦</span>
+      <span>Straight to the owner</span><span class="spark">✦</span>
+    </div>
+  </div>
+</div>
+
+<main class="wrap rooms" id="results">
   <div class="browse-grid">
+
+    <div class="filter-scrim" id="filterScrim" hidden></div>
 
     <aside class="filters" id="filters" aria-label="Filters">
       <div class="filters-head">
@@ -148,11 +215,24 @@
 
 <div id="footer"></div>
 
+<div class="help-dock">
+  <div class="help-pop" id="helpPop" hidden>
+    <p class="help-title">Need a hand?</p>
+    <p>Browse listings or see how BUhostels works before you reach out.</p>
+    <a href="#results">Browse hostels</a>
+    <a href="documentation.html">How BUhostels works</a>
+  </div>
+  <button class="help-fab" id="helpBtn" type="button" aria-label="Open help" aria-expanded="false" aria-controls="helpPop">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5h15a1 1 0 011 1v9a1 1 0 01-1 1H11l-4.5 3.5V16H4.5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>
+  </button>
+</div>
+
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/icons.js"></script>
 <script src="js/cards.js"></script>
 <script src="js/browse.js"></script>
+<script src="js/home.js"></script>
 </body>
 </html>

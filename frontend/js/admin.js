@@ -20,11 +20,13 @@
     $('#who').textContent = me.full_name;
     $('#whoMail').textContent = me.email;
     $('#nOverview').innerHTML = icon('chart') + 'Overview';
-    $('#nActivity').innerHTML = icon('pulse') + 'Live activity';
+    $('#nActivity').innerHTML = icon('pulse') + 'Activity';
     $('#nHostels').innerHTML = icon('home') + 'Hostels';
     $('#nOwners').innerHTML = icon('users') + 'Owners<span class="count" id="pendBadge" hidden></span>';
     $('#nSite').innerHTML = icon('external') + 'View public site';
+    $('#nSite').title = 'View public site';
     $('#logout').innerHTML = icon('logout') + 'Sign out';
+    $('#logout').title = 'Sign out';
     $('#logout').addEventListener('click', BU.logout);
     window.addEventListener('hashchange', route);
     route();

@@ -28,6 +28,7 @@ router.post('/register', async (req, res) => {
 
   const session = await signIn(profile.email, b.password);
   res.status(201).json({ session, profile: publicProfile(profile) });
+ 
 });
 
 router.post('/login', async (req, res) => {

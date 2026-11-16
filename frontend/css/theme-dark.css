@@ -1,0 +1,951 @@
+body.dashboard,
+body.auth-page {
+  --d-bg: #050505;
+  --d-black: #000000;
+  --d-surface: #0d0d0d;
+  --d-surface-2: #141414;
+  --d-line: rgba(255, 255, 255, 0.08);
+  --d-line-strong: rgba(255, 255, 255, 0.16);
+  --d-ink: #ffffff;
+  --d-muted: #a1a1aa;
+  --d-green: #00ff88;
+  --d-green-2: #22c55e;
+  --d-green-ink: #04130b;
+  --d-gold: #d4af37;
+  --d-gold-2: #f5c542;
+  --d-bad: #ff6b6b;
+  --d-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --bone: var(--d-ink);
+  --paper: var(--d-surface);
+  --ink: var(--d-ink);
+  --forest: var(--d-surface);
+  --forest-2: var(--d-surface-2);
+  --moss: var(--d-muted);
+  --clay: var(--d-green);
+  --clay-2: var(--d-green-2);
+  --brass: var(--d-gold);
+  --line: var(--d-line);
+  --line-2: var(--d-line);
+  --mute: var(--d-muted);
+  --ok: var(--d-green-2);
+  --warn: var(--d-gold);
+  --bad: var(--d-bad);
+  --serif: var(--d-sans);
+  --sans: var(--d-sans);
+  --shadow: 0 28px 70px -40px #000;
+  min-height: 100vh;
+  background: var(--d-bg);
+  color: var(--d-ink);
+  font-family: var(--d-sans);
+  color-scheme: dark;
+}
+
+body.dashboard ::selection,
+body.auth-page ::selection {
+  background: var(--d-green);
+  color: var(--d-green-ink);
+}
+
+body.dashboard :focus-visible,
+body.auth-page :focus-visible {
+  outline: 2px solid var(--d-green);
+  outline-offset: 2px;
+}
+
+body.dashboard h1,
+body.dashboard h2,
+body.dashboard h3,
+body.auth-page h1,
+body.auth-page h2,
+body.auth-page h3 {
+  font-family: var(--d-sans);
+  letter-spacing: -0.04em;
+}
+
+body.dashboard .muted,
+body.auth-page .muted {
+  color: var(--d-muted);
+}
+
+body.dashboard .eyebrow,
+body.auth-page .eyebrow {
+  color: var(--d-gold-2);
+  letter-spacing: 0.08em;
+}
+
+body.dashboard .link,
+body.auth-page .link {
+  color: var(--d-green);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+body.dashboard .link:hover,
+body.auth-page .link:hover {
+  color: var(--d-green-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+body.dashboard .mark,
+body.auth-page .mark {
+  color: var(--d-ink);
+  font-family: var(--d-sans);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+body.dashboard .mark-box,
+body.auth-page .mark-box {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid rgba(0, 255, 136, 0.32);
+  border-radius: 12px;
+  background: rgba(0, 255, 136, 0.09);
+  color: var(--d-green);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+body.dashboard .mark em,
+body.auth-page .mark em {
+  color: var(--d-ink);
+  font-style: normal;
+  font-weight: 800;
+}
+
+body.dashboard .btn,
+body.auth-page .btn {
+  border-radius: 999px;
+  font-family: var(--d-sans);
+  font-weight: 700;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+body.dashboard .btn-solid,
+body.auth-page .btn-solid,
+body.dashboard .btn-clay,
+body.auth-page .btn-clay {
+  border-color: var(--d-green);
+  background: var(--d-green);
+  color: var(--d-green-ink);
+}
+
+body.dashboard .btn-solid:hover:not(:disabled),
+body.auth-page .btn-solid:hover:not(:disabled),
+body.dashboard .btn-clay:hover:not(:disabled),
+body.auth-page .btn-clay:hover:not(:disabled) {
+  border-color: var(--d-green-2);
+  background: var(--d-green-2);
+  color: var(--d-green-ink);
+  box-shadow: 0 0 24px -6px rgba(0, 255, 136, 0.5);
+}
+
+body.dashboard .btn-ghost,
+body.auth-page .btn-ghost {
+  border-color: var(--d-line);
+  background: transparent;
+  color: var(--d-ink);
+}
+
+body.dashboard .btn-ghost:hover:not(:disabled),
+body.auth-page .btn-ghost:hover:not(:disabled) {
+  border-color: rgba(0, 255, 136, 0.42);
+  background: rgba(0, 255, 136, 0.06);
+  color: var(--d-green);
+}
+
+body.dashboard .btn-danger,
+body.auth-page .btn-danger {
+  border-color: rgba(255, 107, 107, 0.4);
+  background: rgba(255, 107, 107, 0.14);
+  color: var(--d-bad);
+}
+
+body.dashboard .btn.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+body.dashboard .btn-wa,
+body.auth-page .btn-wa {
+  border-color: var(--d-line);
+  background: transparent;
+  color: var(--d-ink);
+}
+
+body.dashboard .btn-wa:hover,
+body.auth-page .btn-wa:hover {
+  border-color: var(--d-green);
+  color: var(--d-green);
+}
+
+body.dashboard input[type='text'],
+body.dashboard input[type='search'],
+body.dashboard input[type='email'],
+body.dashboard input[type='password'],
+body.dashboard input[type='tel'],
+body.dashboard input[type='number'],
+body.dashboard select,
+body.dashboard textarea,
+body.auth-page input[type='text'],
+body.auth-page input[type='search'],
+body.auth-page input[type='email'],
+body.auth-page input[type='password'],
+body.auth-page input[type='tel'],
+body.auth-page input[type='number'],
+body.auth-page select,
+body.auth-page textarea {
+  border: 1px solid var(--d-line);
+  border-radius: 12px;
+  background: var(--d-surface-2);
+  color: var(--d-ink);
+}
+
+body.dashboard input::placeholder,
+body.dashboard textarea::placeholder,
+body.auth-page input::placeholder,
+body.auth-page textarea::placeholder {
+  color: var(--d-muted);
+}
+
+body.dashboard input:focus,
+body.dashboard select:focus,
+body.dashboard textarea:focus,
+body.auth-page input:focus,
+body.auth-page select:focus,
+body.auth-page textarea:focus {
+  outline: 2px solid rgba(0, 255, 136, 0.45);
+  outline-offset: 0;
+  border-color: var(--d-green);
+}
+
+body.dashboard .field > label,
+body.dashboard .f-label,
+body.auth-page .field > label,
+body.auth-page .f-label {
+  color: var(--d-muted);
+  font: 700 11px/1.2 var(--d-sans);
+  letter-spacing: 0.08em;
+}
+
+body.dashboard .hint,
+body.auth-page .hint {
+  color: var(--d-muted);
+}
+
+body.dashboard .form-err,
+body.auth-page .form-err {
+  color: var(--d-bad);
+}
+
+body.dashboard .check,
+body.auth-page .check {
+  color: var(--d-ink);
+}
+
+body.dashboard .check input,
+body.auth-page .check input,
+body.auth-page .policy-check input {
+  accent-color: var(--d-green);
+}
+
+body.dashboard .loading,
+body.auth-page .loading {
+  color: var(--d-muted);
+}
+
+body.dashboard .dash {
+  background: var(--d-bg);
+}
+
+body.dashboard .side {
+  border-right: 1px solid var(--d-line);
+  border-radius: 0 24px 24px 0;
+  background: #080808;
+  color: var(--d-ink);
+}
+
+body.dashboard .side .mark {
+  color: var(--d-ink);
+}
+
+body.dashboard .side .role {
+  color: var(--d-gold-2);
+  letter-spacing: 0.12em;
+}
+
+body.dashboard .side nav a {
+  border-left: 3px solid transparent;
+  border-radius: 12px;
+  color: var(--d-muted);
+  font-weight: 600;
+}
+
+body.dashboard .side nav a:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--d-ink);
+}
+
+body.dashboard .side nav a.on {
+  border-left-color: var(--d-green);
+  background: rgba(0, 255, 136, 0.08);
+  color: var(--d-ink);
+}
+
+body.dashboard .side nav .count {
+  background: var(--d-green);
+  color: var(--d-green-ink);
+}
+
+body.dashboard .side .who {
+  border-top-color: var(--d-line);
+}
+
+body.dashboard .side .who b {
+  color: var(--d-ink);
+}
+
+body.dashboard .side .who span {
+  color: var(--d-muted);
+}
+
+body.dashboard .side .who a,
+body.dashboard .side .who button {
+  color: var(--d-muted);
+}
+
+body.dashboard .side .who a:hover,
+body.dashboard .side .who button:hover {
+  color: var(--d-green);
+  text-decoration: none;
+}
+
+body.dashboard .dmain {
+  background: var(--d-bg);
+}
+
+body.dashboard .dhead h1 {
+  color: var(--d-ink);
+  font-size: clamp(28px, 3vw, 38px);
+  font-weight: 800;
+  text-shadow: 0 0 34px rgba(255, 255, 255, 0.1);
+}
+
+body.dashboard .dhead p {
+  color: var(--d-muted);
+}
+
+body.dashboard .banner {
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-left: 3px solid var(--d-gold);
+  border-radius: 18px;
+  background: rgba(212, 175, 55, 0.08);
+  color: #f0d795;
+}
+
+body.dashboard .banner b {
+  color: var(--d-gold-2);
+}
+
+body.dashboard .tile {
+  border: 1px solid var(--d-line);
+  border-radius: 20px;
+  background: var(--d-surface);
+  box-shadow: 0 18px 40px -34px #000;
+}
+
+body.dashboard .tile .k {
+  color: var(--d-muted);
+}
+
+body.dashboard .tile .v {
+  color: var(--d-ink);
+  font-family: var(--d-sans);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+body.dashboard .tile.hot .v {
+  color: var(--d-gold-2);
+  text-shadow: 0 0 26px rgba(245, 197, 66, 0.2);
+}
+
+body.dashboard .tile .s {
+  color: var(--d-muted);
+}
+
+body.dashboard .panel {
+  border: 1px solid var(--d-line);
+  border-radius: 24px;
+  background: var(--d-surface);
+  box-shadow: 0 26px 60px -48px #000;
+}
+
+body.dashboard .panel > h2,
+body.dashboard .panel > .ph2 h2 {
+  color: var(--d-ink);
+  font-weight: 800;
+}
+
+body.dashboard .tbl th {
+  border-bottom-color: var(--d-line-strong);
+  color: var(--d-muted);
+}
+
+body.dashboard .tbl td {
+  border-bottom-color: var(--d-line);
+}
+
+body.dashboard .tbl tr:hover td {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+body.dashboard .tbl .cell-main {
+  color: var(--d-ink);
+  font-weight: 700;
+}
+
+body.dashboard .tbl a.cell-main:hover {
+  color: var(--d-green);
+}
+
+body.dashboard .tbl .cell-sub {
+  color: var(--d-muted);
+}
+
+body.dashboard .thumb {
+  border: 1px solid var(--d-line);
+  border-radius: 10px;
+  background: var(--d-surface-2);
+}
+
+body.dashboard .thumb .ph {
+  background: #101010 repeating-linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0 2px, transparent 2px 14px);
+  color: var(--d-gold-2);
+}
+
+body.dashboard .badge {
+  border: 1px solid var(--d-line);
+  border-radius: 999px;
+  background: var(--d-surface-2);
+  color: var(--d-muted);
+}
+
+body.dashboard .badge.ok {
+  border-color: rgba(0, 255, 136, 0.3);
+  background: rgba(0, 255, 136, 0.1);
+  color: var(--d-green);
+}
+
+body.dashboard .badge.warn {
+  border-color: rgba(212, 175, 55, 0.3);
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--d-gold-2);
+}
+
+body.dashboard .badge.bad {
+  border-color: rgba(255, 107, 107, 0.3);
+  background: rgba(255, 107, 107, 0.1);
+  color: var(--d-bad);
+}
+
+body.dashboard .btn-icon {
+  border: 1px solid var(--d-line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--d-ink);
+}
+
+body.dashboard .btn-icon:hover {
+  border-color: var(--d-green);
+  color: var(--d-green);
+}
+
+body.dashboard .btn-icon.on {
+  border-color: rgba(245, 197, 66, 0.4);
+  background: rgba(245, 197, 66, 0.1);
+  color: var(--d-gold-2);
+}
+
+body.dashboard .etabs {
+  border-bottom-color: var(--d-line);
+}
+
+body.dashboard .etabs a {
+  color: var(--d-muted);
+}
+
+body.dashboard .etabs a.on {
+  border-color: var(--d-green);
+  color: var(--d-ink);
+}
+
+body.dashboard .etabs a.off {
+  opacity: 0.35;
+}
+
+body.dashboard .form-foot {
+  border-top-color: var(--d-line);
+}
+
+body.dashboard .todo svg {
+  color: var(--d-gold-2);
+}
+
+body.dashboard .dropzone {
+  border: 2px dashed var(--d-line-strong);
+  border-radius: 20px;
+  background: var(--d-surface-2);
+  color: var(--d-muted);
+}
+
+body.dashboard .dropzone:hover,
+body.dashboard .dropzone.drag {
+  border-color: var(--d-green);
+  background: rgba(0, 255, 136, 0.04);
+}
+
+body.dashboard .dropzone strong {
+  color: var(--d-ink);
+  font-family: var(--d-sans);
+  font-weight: 800;
+}
+
+body.dashboard .photos .photo {
+  border: 1px solid var(--d-line);
+  border-radius: 18px;
+  background: var(--d-surface);
+}
+
+body.dashboard .photos .photo .img {
+  background: var(--d-surface-2);
+}
+
+body.dashboard .photos .photo .bar {
+  border-top: 1px solid var(--d-line);
+  color: var(--d-muted);
+}
+
+body.dashboard .photo .cover-tag {
+  border-radius: 999px;
+  background: var(--d-green);
+  color: var(--d-green-ink);
+}
+
+body.dashboard .seg {
+  border: 1px solid var(--d-line);
+  border-radius: 999px;
+  background: var(--d-surface);
+}
+
+body.dashboard .seg button {
+  border-right-color: var(--d-line);
+  color: var(--d-muted);
+}
+
+body.dashboard .seg button[aria-pressed='true'] {
+  background: var(--d-green);
+  color: var(--d-green-ink);
+}
+
+body.dashboard .live {
+  color: var(--d-muted);
+}
+
+body.dashboard .live i {
+  background: var(--d-green);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+body.dashboard .live.paused i {
+  background: var(--d-line-strong);
+  box-shadow: none;
+}
+
+body.dashboard .feed li {
+  border-bottom-color: var(--d-line);
+}
+
+body.dashboard .feed .dot {
+  background: var(--d-green);
+}
+
+body.dashboard .feed .k-contact .dot {
+  background: var(--d-gold-2);
+}
+
+body.dashboard .feed .k-owner .dot {
+  background: var(--d-green-2);
+}
+
+body.dashboard .feed .k-visit .dot {
+  background: var(--d-line-strong);
+}
+
+body.dashboard .feed .when {
+  color: var(--d-muted);
+}
+
+body.dashboard .feed b {
+  color: var(--d-ink);
+}
+
+body.dashboard .feed li.fresh {
+  background: linear-gradient(90deg, rgba(0, 255, 136, 0.12), transparent 72%);
+}
+
+body.dashboard .chart .gl {
+  stroke: var(--d-line);
+}
+
+body.dashboard .chart .ax {
+  fill: var(--d-muted);
+}
+
+body.dashboard .chart .bar {
+  fill: var(--d-green);
+}
+
+body.dashboard .chart .bar:hover {
+  fill: var(--d-green-2);
+}
+
+body.dashboard .chart .ln {
+  stroke: var(--d-gold-2);
+}
+
+body.dashboard .chart .dt {
+  fill: var(--d-surface);
+  stroke: var(--d-gold-2);
+}
+
+body.dashboard .legend {
+  color: var(--d-muted);
+}
+
+body.dashboard .legend .l-bar {
+  background: var(--d-green);
+}
+
+body.dashboard .legend .l-line {
+  background: var(--d-gold-2);
+}
+
+body.dashboard .rank li {
+  border-bottom-color: var(--d-line);
+}
+
+body.dashboard .empty-s {
+  color: var(--d-muted);
+}
+
+body.dashboard .approve-pop {
+  border: 1px solid var(--d-line-strong);
+  border-left: 4px solid var(--d-green);
+  border-radius: 18px;
+  background: var(--d-surface-2);
+  color: var(--d-ink);
+  box-shadow: 0 22px 60px -30px #000;
+}
+
+body.dashboard .approve-pop svg {
+  color: var(--d-green);
+}
+
+body.dashboard .approve-pop b {
+  color: var(--d-ink);
+  font-family: var(--d-sans);
+  font-weight: 800;
+}
+
+body.dashboard .avatar {
+  border: 1px solid rgba(0, 255, 136, 0.28);
+  background-color: var(--d-green);
+  color: var(--d-green-ink);
+  font-family: var(--d-sans);
+  font-weight: 800;
+}
+
+body.dashboard .logo-prev {
+  border: 1px solid rgba(0, 255, 136, 0.28);
+  background-color: var(--d-green);
+  color: var(--d-green-ink);
+  font-family: var(--d-sans);
+  font-weight: 800;
+}
+
+body.dashboard .geo .btn,
+body.dashboard .span2 .btn {
+  white-space: nowrap;
+}
+
+body.auth-page .auth {
+  background: var(--d-bg);
+}
+
+body.auth-page .auth-side {
+  border-right: 1px solid var(--d-line);
+  border-radius: 0;
+  background: #080808;
+  color: var(--d-ink);
+}
+
+body.auth-page .auth-side::after {
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(0, 255, 136, 0.1), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 90% 90%, rgba(212, 175, 55, 0.08), transparent 60%);
+}
+
+body.auth-page .auth-side .mark {
+  color: var(--d-ink);
+}
+
+body.auth-page .auth-side .mark em {
+  color: var(--d-ink);
+}
+
+body.auth-page .auth-side h1 {
+  color: var(--d-ink);
+  font-weight: 800;
+  text-shadow: 0 0 38px rgba(255, 255, 255, 0.12);
+}
+
+body.auth-page .auth-side h1 .gold {
+  color: var(--d-gold-2);
+  text-shadow: 0 0 30px rgba(245, 197, 66, 0.2);
+}
+
+body.auth-page .auth-side p {
+  color: var(--d-muted);
+}
+
+body.auth-page .auth-side ul {
+  color: #d4d4d8;
+}
+
+body.auth-page .auth-side li svg {
+  color: var(--d-gold-2);
+}
+
+body.auth-page .auth-side a {
+  color: var(--d-green);
+}
+
+body.auth-page .auth-main {
+  background: var(--d-bg);
+  padding: 40px 24px;
+}
+
+body.auth-page .auth-box {
+  width: min(460px, 100%);
+  padding: 30px;
+  border: 1px solid var(--d-line);
+  border-radius: 24px;
+  background: var(--d-surface);
+  box-shadow: 0 40px 100px -60px #000, 0 0 70px -50px rgba(0, 255, 136, 0.4);
+}
+
+body.auth-page .auth-box h2 {
+  color: var(--d-ink);
+  font-weight: 800;
+}
+
+body.auth-page .tabs {
+  border-bottom-color: var(--d-line);
+}
+
+body.auth-page .tabs button {
+  border-radius: 12px 12px 0 0;
+  color: var(--d-muted);
+}
+
+body.auth-page .tabs button[aria-selected='true'] {
+  border-color: var(--d-green);
+  color: var(--d-ink);
+}
+
+body.auth-page .notice {
+  border: 1px solid rgba(212, 175, 55, 0.26);
+  border-left: 4px solid var(--d-gold);
+  border-radius: 16px;
+  background: rgba(212, 175, 55, 0.08);
+  color: #ecd699;
+}
+
+body.auth-page .choice {
+  border: 1px solid var(--d-line);
+  border-left: 4px solid var(--d-line);
+  border-radius: 16px;
+  background: var(--d-surface-2);
+  color: var(--d-ink);
+}
+
+body.auth-page .choice:hover {
+  border-color: rgba(0, 255, 136, 0.32);
+  border-left-color: var(--d-green);
+  background: rgba(0, 255, 136, 0.04);
+}
+
+body.auth-page .choice strong {
+  color: var(--d-ink);
+  font-family: var(--d-sans);
+  font-weight: 800;
+}
+
+body.auth-page .choice span {
+  color: var(--d-muted);
+}
+
+body.auth-page .policy-check {
+  color: var(--d-muted);
+}
+
+body.auth-page .policy-check a {
+  color: var(--d-green);
+}
+
+body.auth-page .logo-prev {
+  border: 1px solid rgba(0, 255, 136, 0.28);
+  background: var(--d-green);
+  color: var(--d-green-ink);
+  font-family: var(--d-sans);
+  font-weight: 800;
+}
+
+body.auth-page .step-actions .btn-solid,
+body.auth-page .step-actions .btn-clay {
+  flex: 1;
+}
+
+body.auth-page .auth-box .field {
+  gap: 7px;
+}
+
+body.auth-page .auth-box .btn-block {
+  margin-top: 2px;
+}
+
+@media (max-width: 960px) {
+  body.auth-page .auth-side {
+    border-right: 0;
+    border-bottom: 1px solid var(--d-line);
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 860px) {
+  body.dashboard .side {
+    border-right: 0;
+    border-bottom: 1px solid var(--d-line);
+    border-radius: 0 0 20px 20px;
+  }
+
+  body.dashboard .side nav a {
+    border-left: 0;
+    border-bottom: 3px solid transparent;
+  }
+
+  body.dashboard .side nav a.on {
+    border-left-color: transparent;
+    border-bottom-color: var(--d-green);
+  }
+}
+
+@media (max-width: 700px) {
+  body.dashboard .tile,
+  body.dashboard .panel {
+    border-radius: 18px;
+  }
+
+  body.auth-page .auth-box {
+    padding: 22px;
+    border-radius: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.dashboard .btn,
+  body.auth-page .btn {
+    transition: none;
+  }
+}
+
+@media (max-width: 860px) {
+  body.admin-dash .side {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px 9px;
+    overflow: visible;
+  }
+
+  body.admin-dash .side > div:first-child {
+    order: 1;
+  }
+
+  body.admin-dash .side .who {
+    order: 2;
+    margin: 0 0 0 auto;
+    gap: 6px;
+  }
+
+  body.admin-dash .side nav {
+    order: 3;
+    flex: 0 0 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  body.admin-dash .side nav a {
+    position: relative;
+    justify-content: center;
+    gap: 5px;
+    min-width: 0;
+    padding: 9px 3px;
+    border-radius: 10px;
+    font-size: clamp(11px, 3.1vw, 13px);
+    white-space: nowrap;
+  }
+
+  body.admin-dash .side nav a .i {
+    width: 15px;
+    height: 15px;
+    flex: none;
+  }
+
+  body.admin-dash .side nav a .count {
+    position: absolute;
+    top: 3px;
+    right: 4px;
+    margin: 0;
+    padding: 0 4px;
+    font-size: 9px;
+    line-height: 14px;
+  }
+
+  body.admin-dash .side .who a,
+  body.admin-dash .side .who button {
+    width: 34px;
+    height: 34px;
+    justify-content: center;
+    gap: 0;
+    border: 1px solid var(--d-line);
+    border-radius: 50%;
+    font-size: 0;
+    color: var(--d-muted);
+  }
+
+  body.admin-dash .side .who a .i,
+  body.admin-dash .side .who button .i {
+    width: 17px;
+    height: 17px;
+  }
+}

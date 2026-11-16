@@ -1,3 +1,4 @@
+const { Resend } = require('resend');
 const { admin, authClient } = require('./supabase');
 const { httpError } = require('./db');
 const { EMAIL_RE, str, normalizePhone, parseBusiness } = require('./util');
@@ -54,8 +55,19 @@ async function createOwnerAccount({ email, password, full_name, phone, status = 
     console.error('[accounts] profile insert failed:', inserted.error.message);
     await admin.auth.admin.deleteUser(created.data.user.id);
     throw httpError(500, 'Could not create the account. Please try again.');
+  }else{      
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    await resend.emails.send({
+      from: 'Acme <onboarding@resend.dev>',
+      to: ['lyavalakevin@gmail.com'],
+      subject: 'NEW OWNER!!',
+      html: '<h1>This email is to inform you the admin</h1><p>New user has created an account as owner go and approve</p>',
+});
   }
   return inserted.data;
+
 }
 
 async function signIn(email, password) {
