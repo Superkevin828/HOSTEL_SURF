@@ -1,0 +1,848 @@
+body.hostel-page {
+  --hp-bg: #050505;
+  --hp-black: #000000;
+  --hp-surface: #0d0d0d;
+  --hp-surface-2: #141414;
+  --hp-line: rgba(255, 255, 255, 0.08);
+  --hp-line-strong: rgba(255, 255, 255, 0.16);
+  --hp-ink: #ffffff;
+  --hp-muted: #a1a1aa;
+  --hp-green: #00ff88;
+  --hp-green-2: #22c55e;
+  --hp-green-ink: #04130b;
+  --hp-gold: #d4af37;
+  --hp-gold-2: #f5c542;
+  --hp-bad: #ff6b6b;
+  --hp-glow-green: rgba(0, 255, 136, 0.24);
+  --hp-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --bone: var(--hp-ink);
+  --paper: var(--hp-surface);
+  --ink: var(--hp-ink);
+  --forest: var(--hp-surface);
+  --forest-2: var(--hp-surface-2);
+  --moss: var(--hp-muted);
+  --clay: var(--hp-green);
+  --clay-2: var(--hp-green-2);
+  --brass: var(--hp-gold);
+  --line: var(--hp-line);
+  --line-2: var(--hp-line);
+  --mute: var(--hp-muted);
+  --ok: var(--hp-green-2);
+  --warn: var(--hp-gold);
+  --bad: var(--hp-bad);
+  --serif: var(--hp-sans);
+  --sans: var(--hp-sans);
+  --shadow: 0 28px 70px -40px #000;
+  min-height: 100vh;
+  background: var(--hp-bg);
+  color: var(--hp-ink);
+  font-family: var(--hp-sans);
+  color-scheme: dark;
+}
+
+body.hostel-page ::selection {
+  background: var(--hp-green);
+  color: var(--hp-green-ink);
+}
+
+body.hostel-page :focus-visible {
+  outline: 2px solid var(--hp-green);
+  outline-offset: 3px;
+}
+
+body.hostel-page h1,
+body.hostel-page h2,
+body.hostel-page h3 {
+  font-family: var(--hp-sans);
+  letter-spacing: -0.04em;
+}
+
+body.hostel-page .wrap {
+  max-width: 1240px;
+}
+
+body.hostel-page .muted {
+  color: var(--hp-muted);
+}
+
+body.hostel-page .eyebrow {
+  color: var(--hp-gold-2);
+  letter-spacing: 0.08em;
+}
+
+body.hostel-page .link {
+  color: var(--hp-green);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+body.hostel-page .link:hover {
+  color: var(--hp-green-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+body.hostel-page .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--hp-line);
+  background: rgba(5, 5, 5, 0.86);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+body.hostel-page .topbar .wrap {
+  height: 72px;
+}
+
+body.hostel-page .mark {
+  color: var(--hp-ink);
+  font-family: var(--hp-sans);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+body.hostel-page .mark-box {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid rgba(0, 255, 136, 0.32);
+  border-radius: 12px;
+  background: rgba(0, 255, 136, 0.09);
+  color: var(--hp-green);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+body.hostel-page .mark em {
+  color: var(--hp-ink);
+  font-style: normal;
+  font-weight: 800;
+}
+
+body.hostel-page .nav a,
+body.hostel-page .nav button {
+  padding: 9px 14px;
+  border-radius: 999px;
+  color: var(--hp-muted);
+  font-size: 13.5px;
+  font-weight: 700;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+body.hostel-page .nav a:hover,
+body.hostel-page .nav button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--hp-ink);
+}
+
+body.hostel-page .nav .nav-cta {
+  border: 1px solid rgba(0, 255, 136, 0.35);
+  background: rgba(0, 255, 136, 0.1);
+  color: var(--hp-green);
+}
+
+body.hostel-page .nav .nav-cta:hover {
+  border-color: var(--hp-green);
+  background: var(--hp-green);
+  color: var(--hp-green-ink);
+}
+
+body.hostel-page .crumbs {
+  padding: 28px 0 8px;
+  color: var(--hp-muted);
+  font-size: 13px;
+}
+
+body.hostel-page .crumbs a {
+  color: var(--hp-muted);
+  transition: color 0.2s ease;
+}
+
+body.hostel-page .crumbs a:hover {
+  color: var(--hp-green);
+  text-decoration: none;
+}
+
+body.hostel-page .h-head {
+  padding: 12px 0 28px;
+}
+
+body.hostel-page .h-head h1 {
+  margin: 12px 0 16px;
+  color: var(--hp-ink);
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+  text-shadow: 0 0 46px rgba(255, 255, 255, 0.08);
+}
+
+body.hostel-page .tags {
+  gap: 7px;
+}
+
+body.hostel-page .tag {
+  padding: 6px 11px;
+  border: 1px solid var(--hp-line);
+  border-radius: 999px;
+  background: var(--hp-surface);
+  color: var(--hp-muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+body.hostel-page .tag.accent {
+  border-color: rgba(245, 197, 66, 0.32);
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--hp-gold-2);
+}
+
+body.hostel-page .tag.bad {
+  border-color: rgba(255, 107, 107, 0.32);
+  background: rgba(255, 107, 107, 0.12);
+  color: var(--hp-bad);
+}
+
+body.hostel-page .h-grid {
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 48px;
+}
+
+body.hostel-page .gallery-main {
+  border: 1px solid var(--hp-line);
+  border-radius: 24px;
+  background: var(--hp-surface-2);
+  box-shadow: 0 34px 90px -55px #000;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.hostel-page .gallery-main:hover {
+  border-color: rgba(0, 255, 136, 0.34);
+  box-shadow: 0 34px 90px -55px #000, 0 0 54px -30px var(--hp-glow-green);
+}
+
+body.hostel-page .gallery-main .ph {
+  background: #0b1511 repeating-linear-gradient(135deg, rgba(0, 255, 136, 0.06) 0 2px, transparent 2px 16px);
+  color: var(--hp-gold-2);
+}
+
+body.hostel-page .gallery-main .ph span {
+  font-family: var(--hp-sans);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+}
+
+body.hostel-page .thumbs {
+  gap: 10px;
+  margin-top: 10px;
+  padding-bottom: 8px;
+  scrollbar-color: rgba(0, 255, 136, 0.4) transparent;
+}
+
+body.hostel-page .thumbs button {
+  width: 104px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: var(--hp-surface-2);
+  opacity: 0.7;
+  transition: opacity 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.hostel-page .thumbs button:hover {
+  border-color: var(--hp-line-strong);
+  opacity: 1;
+}
+
+body.hostel-page .thumbs button[aria-current='true'] {
+  border-color: var(--hp-green);
+  box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.12);
+  opacity: 1;
+}
+
+body.hostel-page .sec {
+  margin-top: 48px;
+  padding-top: 30px;
+  border-top: 1px solid var(--hp-line);
+}
+
+body.hostel-page .sec h2 {
+  margin-bottom: 16px;
+  color: var(--hp-ink);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+body.hostel-page .sec p.body {
+  max-width: 64ch;
+  color: var(--hp-muted);
+  font-size: 15.5px;
+  line-height: 1.8;
+}
+
+body.hostel-page .amen {
+  gap: 10px;
+}
+
+body.hostel-page .amen li {
+  padding: 11px 14px;
+  border: 1px solid var(--hp-line);
+  border-radius: 14px;
+  background: var(--hp-surface);
+  color: #e4e4e7;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+body.hostel-page .amen svg {
+  color: var(--hp-green);
+}
+
+body.hostel-page .rooms {
+  border-top: 1px solid var(--hp-line-strong);
+}
+
+body.hostel-page .room {
+  gap: 6px 28px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--hp-line);
+}
+
+body.hostel-page .room h3 {
+  color: var(--hp-ink);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+body.hostel-page .room .sub {
+  color: var(--hp-muted);
+  font-size: 13.5px;
+}
+
+body.hostel-page .room .rp {
+  color: var(--hp-gold-2);
+  font-family: var(--hp-sans);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+body.hostel-page .room .rp small {
+  color: var(--hp-muted);
+  font-weight: 500;
+}
+
+body.hostel-page .avail {
+  letter-spacing: 0.02em;
+}
+
+body.hostel-page .avail.ok {
+  color: var(--hp-green);
+}
+
+body.hostel-page .avail.low {
+  color: var(--hp-gold-2);
+}
+
+body.hostel-page .avail.none {
+  color: var(--hp-bad);
+}
+
+body.hostel-page .contact-card {
+  top: 24px;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--hp-line);
+  border-top: 3px solid var(--hp-green);
+  border-radius: 24px;
+  background: linear-gradient(180deg, #101a15 0%, var(--hp-surface) 42%);
+  box-shadow: 0 34px 80px -46px #000, 0 0 60px -38px var(--hp-glow-green);
+}
+
+body.hostel-page .contact-card h2 {
+  color: var(--hp-ink);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+body.hostel-page .contact-card .from-price {
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--hp-line-strong);
+}
+
+body.hostel-page .contact-card .from-price strong {
+  color: var(--hp-gold-2);
+  font-family: var(--hp-sans);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+body.hostel-page .contact-card .num {
+  color: var(--hp-ink);
+  font-family: var(--hp-sans);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+body.hostel-page .contact-card .small {
+  color: var(--hp-muted);
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+
+body.hostel-page .contact-card .biz strong {
+  color: var(--hp-ink);
+  font-family: var(--hp-sans);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+body.hostel-page .contact-card .avatar {
+  border: 1px solid rgba(0, 255, 136, 0.24);
+  background-color: rgba(0, 255, 136, 0.1);
+  color: var(--hp-green);
+  font-weight: 800;
+}
+
+body.hostel-page .btn {
+  border-radius: 999px;
+  font-family: var(--hp-sans);
+  font-weight: 700;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.hostel-page .btn-solid {
+  border-color: var(--hp-green);
+  background: var(--hp-green);
+  color: var(--hp-green-ink);
+}
+
+body.hostel-page .btn-solid:hover:not(:disabled) {
+  border-color: var(--hp-green-2);
+  background: var(--hp-green-2);
+  color: var(--hp-green-ink);
+}
+
+body.hostel-page .btn-clay {
+  border-color: var(--hp-green);
+  background: var(--hp-green);
+  color: var(--hp-green-ink);
+}
+
+body.hostel-page .btn-clay:hover:not(:disabled) {
+  border-color: var(--hp-green-2);
+  background: var(--hp-green-2);
+  color: var(--hp-green-ink);
+  box-shadow: 0 0 26px -8px var(--hp-glow-green);
+}
+
+body.hostel-page .btn-ghost {
+  border-color: var(--hp-line);
+  background: transparent;
+  color: var(--hp-ink);
+}
+
+body.hostel-page .btn-ghost:hover:not(:disabled) {
+  border-color: var(--hp-green);
+  color: var(--hp-green);
+}
+
+body.hostel-page .btn-wa {
+  border-color: var(--hp-line);
+  background: transparent;
+  color: var(--hp-ink);
+}
+
+body.hostel-page .btn-wa:hover {
+  border-color: var(--hp-green);
+  background: var(--hp-surface-2);
+  color: var(--hp-green);
+}
+
+body.hostel-page .cta-bar {
+  border-top: 1px solid var(--hp-line);
+  background: rgba(5, 5, 5, 0.94);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+body.hostel-page .related {
+  border-top: 1px solid var(--hp-line);
+}
+
+body.hostel-page .related h2 {
+  color: var(--hp-ink);
+  font-weight: 800;
+}
+
+body.hostel-page .hcard {
+  --card-espresso: var(--hp-ink);
+  --card-cocoa: var(--hp-green);
+  --card-cream: var(--hp-surface-2);
+  --card-line: var(--hp-line);
+  --card-shadow: 0 24px 55px -36px #000;
+  padding: 9px;
+  border: 1px solid var(--hp-line);
+  border-radius: 20px;
+  background: var(--hp-surface);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.hostel-page .hcard:hover {
+  border-color: rgba(0, 255, 136, 0.34);
+  box-shadow: 0 24px 55px -36px #000, 0 0 34px -14px var(--hp-glow-green);
+}
+
+body.hostel-page .hcard:focus-within {
+  border-color: var(--hp-green);
+  box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.14);
+}
+
+body.hostel-page .hcard-media {
+  border-radius: 14px;
+  background: var(--hp-surface-2);
+}
+
+body.hostel-page .hcard-media::after {
+  background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.58));
+}
+
+body.hostel-page .hcard-body {
+  gap: 8px;
+  padding: 16px 9px 9px;
+}
+
+body.hostel-page .hcard h3 {
+  color: var(--hp-ink);
+  font-size: 18.5px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+}
+
+body.hostel-page .hcard h3 a:hover {
+  color: var(--hp-green);
+  text-decoration: none;
+}
+
+body.hostel-page .hcard .meta {
+  gap: 6px;
+  color: var(--hp-muted);
+  font-size: 12.5px;
+}
+
+body.hostel-page .hcard .meta svg {
+  color: var(--hp-green);
+}
+
+body.hostel-page .hcard .facts {
+  color: var(--hp-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+body.hostel-page .hcard .facts b {
+  color: var(--hp-ink);
+  font-weight: 700;
+}
+
+body.hostel-page .hcard .price {
+  gap: 6px;
+  padding-top: 11px;
+  border-top: 1px solid var(--hp-line);
+}
+
+body.hostel-page .hcard .price .from,
+body.hostel-page .hcard .price .per {
+  color: var(--hp-muted);
+  font-size: 11.5px;
+  letter-spacing: 0.01em;
+}
+
+body.hostel-page .hcard .price strong {
+  color: var(--hp-gold-2);
+  font-family: var(--hp-sans);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+body.hostel-page .hcard .price.none {
+  color: var(--hp-muted);
+}
+
+body.hostel-page .hcard-actions {
+  gap: 7px;
+  margin-top: 4px;
+}
+
+body.hostel-page .hcard-actions .btn {
+  padding: 9px 10px;
+  font-size: 12px;
+}
+
+body.hostel-page .hcard-actions .btn-solid {
+  border-color: var(--hp-green);
+  background: var(--hp-green);
+  color: var(--hp-green-ink);
+}
+
+body.hostel-page .hcard-actions .btn-solid:hover:not(:disabled) {
+  border-color: var(--hp-green-2);
+  background: var(--hp-green-2);
+  color: var(--hp-green-ink);
+  box-shadow: 0 0 20px -4px var(--hp-glow-green);
+}
+
+body.hostel-page .hcard-actions .btn-wa {
+  border: 1px solid var(--hp-line);
+  background: transparent;
+  color: var(--hp-ink);
+}
+
+body.hostel-page .hcard-actions .btn-wa:hover {
+  border-color: var(--hp-line-strong);
+  background: var(--hp-surface-2);
+  color: var(--hp-green);
+}
+
+body.hostel-page .tag-feat,
+body.hostel-page .tag-full,
+body.hostel-page .photo-count {
+  top: 10px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font: 700 10.5px/1 var(--hp-sans);
+  letter-spacing: 0.02em;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+body.hostel-page .tag-feat {
+  left: 10px;
+  border: 1px solid rgba(245, 197, 66, 0.34);
+  background: rgba(212, 175, 55, 0.16);
+  color: var(--hp-gold-2);
+}
+
+body.hostel-page .tag-full {
+  left: 10px;
+  border: 1px solid rgba(255, 107, 107, 0.32);
+  background: rgba(255, 107, 107, 0.16);
+  color: var(--hp-bad);
+}
+
+body.hostel-page .tag-feat + .tag-full {
+  top: 42px;
+}
+
+body.hostel-page .photo-count {
+  right: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--hp-ink);
+}
+
+body.hostel-page .ph {
+  background: #0b1511 repeating-linear-gradient(135deg, rgba(0, 255, 136, 0.06) 0 2px, transparent 2px 16px);
+  color: rgba(245, 197, 66, 0.9);
+}
+
+body.hostel-page .ph span {
+  font-family: var(--hp-sans);
+  font-weight: 800;
+}
+
+body.hostel-page .empty {
+  border: 1px dashed var(--hp-line-strong);
+  border-radius: 24px;
+  background: var(--hp-surface);
+  color: var(--hp-muted);
+}
+
+body.hostel-page .empty h3 {
+  color: var(--hp-ink);
+  font-weight: 800;
+}
+
+body.hostel-page .skel {
+  background: linear-gradient(90deg, var(--hp-surface-2), #1b1b1b, var(--hp-surface-2));
+  background-size: 200% 100%;
+}
+
+body.hostel-page .foot {
+  padding: 58px 0 42px;
+  border-top: 1px solid var(--hp-line);
+  background: var(--hp-black);
+  color: var(--hp-muted);
+}
+
+body.hostel-page .foot .wrap {
+  gap: 48px;
+}
+
+body.hostel-page .foot .mark {
+  color: var(--hp-ink);
+  font-size: 20px;
+}
+
+body.hostel-page .foot .mark-box {
+  border-color: var(--hp-line-strong);
+  background: transparent;
+  color: var(--hp-green);
+}
+
+body.hostel-page .foot .mark em {
+  color: var(--hp-ink);
+}
+
+body.hostel-page .foot p {
+  max-width: 44ch;
+  margin-top: 16px;
+  color: var(--hp-muted);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+body.hostel-page .foot ul {
+  gap: 10px 32px;
+}
+
+body.hostel-page .foot a {
+  color: var(--hp-muted);
+  font-size: 13px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+body.hostel-page .foot a:hover {
+  color: var(--hp-green);
+  text-decoration: none;
+}
+
+body.hostel-page dialog.dlg {
+  border: 1px solid var(--hp-line-strong);
+  border-radius: 22px;
+  background: var(--hp-surface);
+  color: var(--hp-ink);
+  box-shadow: 0 34px 90px -30px #000;
+}
+
+body.hostel-page dialog.dlg::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+body.hostel-page dialog.lightbox {
+  border-color: var(--hp-line);
+  background: #030303;
+}
+
+body.hostel-page .lightbox .lb-btn {
+  border: 1px solid var(--hp-line-strong);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--hp-ink);
+}
+
+body.hostel-page .lightbox .lb-btn:hover {
+  border-color: var(--hp-green);
+  background: rgba(0, 255, 136, 0.12);
+  color: var(--hp-green);
+}
+
+body.hostel-page .lightbox .lb-count {
+  border: 1px solid var(--hp-line);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.68);
+  color: var(--hp-muted);
+}
+
+body.hostel-page .toast {
+  border: 1px solid var(--hp-line-strong);
+  border-radius: 14px;
+  background: var(--hp-surface-2);
+  color: var(--hp-ink);
+}
+
+body.hostel-page .toast.ok {
+  border-color: rgba(0, 255, 136, 0.3);
+  background: rgba(0, 255, 136, 0.1);
+  color: var(--hp-green);
+}
+
+body.hostel-page .toast.err {
+  border-color: rgba(255, 107, 107, 0.3);
+  background: rgba(255, 107, 107, 0.1);
+  color: var(--hp-bad);
+}
+
+@media (max-width: 960px) {
+  body.hostel-page .h-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  body.hostel-page .contact-card {
+    top: auto;
+    margin-top: 12px;
+  }
+
+  body.hostel-page .cta-bar {
+    border-top-color: var(--hp-line-strong);
+    background: rgba(5, 5, 5, 0.96);
+  }
+}
+
+@media (max-width: 600px) {
+  body.hostel-page .topbar .wrap {
+    height: 64px;
+  }
+
+  body.hostel-page .mark-box {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+
+  body.hostel-page .h-head h1 {
+    font-size: clamp(32px, 10vw, 44px);
+  }
+
+  body.hostel-page .room {
+    padding: 17px 0;
+  }
+
+  body.hostel-page .contact-card {
+    border-radius: 20px;
+    padding: 20px;
+  }
+
+  body.hostel-page .hcard {
+    border-radius: 18px;
+  }
+
+  body.hostel-page .hcard-media {
+    border-radius: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.hostel-page .btn,
+  body.hostel-page .hcard,
+  body.hostel-page .gallery-main,
+  body.hostel-page .thumbs button {
+    transition: none;
+  }
+}
