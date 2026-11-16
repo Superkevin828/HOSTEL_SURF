@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../lib/icons';
 import { track } from '../lib/api';
 import { fmtMoney, genderLabel, initials, waLink, waMessage } from '../lib/format';
+import { isSaved, subscribeSaved, toggleSaved } from '../lib/saved';
 
 export default function HostelCard({ hostel }) {
   const href = `/hostel/${encodeURIComponent(hostel.id)}`;
@@ -12,9 +14,30 @@ export default function HostelCard({ hostel }) {
       : ''
   }`;
   const extra = (hostel.amenities || []).slice(0, 3).join(' \u00b7 ');
+  const [saved, setSaved] = useState(() => isSaved(hostel.id));
+
+  useEffect(() => {
+    setSaved(isSaved(hostel.id));
+    return subscribeSaved(() => setSaved(isSaved(hostel.id)));
+  }, [hostel.id]);
+
+  const onSave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleSaved(hostel);
+  };
 
   return (
     <article className="hcard">
+      <button
+        className={`hcard-save${saved ? ' on' : ''}`}
+        type="button"
+        aria-label={saved ? `Remove ${hostel.name} from saved hostels` : `Save ${hostel.name}`}
+        aria-pressed={saved}
+        onClick={onSave}
+      >
+        <Icon name="heart" />
+      </button>
       <Link className="hcard-media" to={href} tabIndex={-1} aria-hidden="true">
         {hostel.cover ? (
           <img src={hostel.cover} alt={hostel.name} loading="lazy" />
@@ -33,6 +56,15 @@ export default function HostelCard({ hostel }) {
         ) : null}
       </Link>
       <div className="hcard-body">
+        <div className="hcard-topline">
+          <span className="hcard-gender">{genderLabel(hostel.gender)}</span>
+          {hostel.rooms_count ? (
+            <span>
+              {hostel.rooms_count}
+              {hostel.rooms_count === 1 ? ' room type' : ' room types'}
+            </span>
+          ) : null}
+        </div>
         <h3>
           <Link to={href}>{hostel.name}</Link>
         </h3>
@@ -40,12 +72,7 @@ export default function HostelCard({ hostel }) {
           <Icon name="pin" />
           <span>{where}</span>
         </div>
-        <div className="facts">
-          <b>{genderLabel(hostel.gender)}</b>
-          {hostel.rooms_count ? ` \u00b7 ${hostel.rooms_count}${hostel.rooms_count === 1 ? ' room type' : ' room types'}` : ''}
-          {extra ? <br /> : null}
-          {extra}
-        </div>
+        {extra ? <div className="facts">{extra}</div> : null}
         {hostel.min_price != null ? (
           <div className="price">
             <span className="from">From</span>
@@ -60,10 +87,11 @@ export default function HostelCard({ hostel }) {
             View rooms
           </Link>
           <a
-            className="btn btn-wa btn-sm"
+            className="btn btn-ghost btn-sm"
             href={waLink(hostel.whatsapp || hostel.phone, waMessage(hostel.name))}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={`WhatsApp ${hostel.name}`}
             onClick={() => track('whatsapp', { hostel_id: hostel.id })}
           >
             <Icon name="chat" />

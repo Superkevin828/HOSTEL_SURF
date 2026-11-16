@@ -1,5 +1,5 @@
-
 // Where the API lives.
-// Empty = same origin. Locally the backend serves this folder; on Cloudflare Pages the
-// Pages Function in /functions/api forwards /api/* to the Render backend.
-window.BU_CONFIG = { API_BASE: '' };
+// On localhost the backend serves this folder (same origin). Everywhere else the browser calls Render directly.
+window.BU_CONFIG = {
+  API_BASE: ['localhost', '127.0.0.1'].includes(location.hostname) ? '' : 'https://buhostels-api.onrender.com'
+};

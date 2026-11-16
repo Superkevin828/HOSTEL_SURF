@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 function PolicyHead({ eyebrow, title, intro }) {
   return (
@@ -206,12 +207,23 @@ export function Privacy() {
 }
 
 export function Documentation() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const target = location.state && location.state.scrollTo;
+    if (!target) return undefined;
+    const timer = setTimeout(() => {
+      document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+    return () => clearTimeout(timer);
+  }, [location.state]);
+
   return (
     <main className="wrap policy-page">
       <PolicyHead
         eyebrow="BUhostels guide"
-        title="How BUhostels works"
-        intro="A practical guide to finding a hostel, listing accommodation, and understanding the platform."
+        title="How this actually works."
+        intro="A practical guide to finding a hostel, listing accommodation, staying safe and understanding the platform."
       />
       <article className="policy-content">
         <nav className="policy-nav" aria-label="Related information">
@@ -228,6 +240,19 @@ export function Documentation() {
           Use the listing&apos;s WhatsApp or phone link to contact the owner directly. BUhostels helps people discover
           listings; it does not take bookings or payments and is not a party to any rental agreement. Confirm
           availability, inspect the accommodation, and agree on terms with the owner before paying.
+        </p>
+
+        <h2 id="safety">Safety when contacting owners</h2>
+        <ul>
+          <li>Visit the hostel in daylight and, where possible, take a friend.</li>
+          <li>Inspect the actual room you will stay in, not just the photos.</li>
+          <li>Agree the semester price, deposit and what is included before paying anything.</li>
+          <li>Never send money to secure a room without seeing it and meeting the owner.</li>
+          <li>Ask for a written receipt that shows the amount, date and what it covers.</li>
+        </ul>
+        <p>
+          Report suspicious listings to the site administrator through the contact option in the menu. BUhostels can hide
+          or remove listings, but cannot recover money paid outside the platform.
         </p>
 
         <h2>For hostel owners</h2>
@@ -257,6 +282,24 @@ export function Documentation() {
           and activity events. See the <Link to="/privacy">Privacy Policy</Link> for details about personal information.
         </p>
         <p>Prices are displayed in Ugandan shillings (UGX) per semester. Phone numbers are shown in international format for contact links.</p>
+
+        <h2 id="faq">Questions students ask</h2>
+        <h3>Is BUhostels free to use?</h3>
+        <p>Yes. Browsing, searching and contacting owners costs nothing. There are no booking fees.</p>
+        <h3>Can I book or pay through BUhostels?</h3>
+        <p>
+          No. BUhostels is a discovery platform. You contact the owner directly and make your own arrangements after
+          inspecting the room.
+        </p>
+        <h3>How do I save a hostel?</h3>
+        <p>
+          Tap the heart on any hostel card. Your saved hostels stay on this device and are available from the Saved tab.
+        </p>
+        <h3>How do I know the price is real?</h3>
+        <p>
+          Prices come from the owner&apos;s listing and are shown per semester. Confirm the current price with the owner
+          before paying.
+        </p>
 
         <h2>Important links</h2>
         <ul>

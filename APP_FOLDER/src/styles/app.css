@@ -47,7 +47,8 @@ a.hcard-media:visited {
   position: fixed;
   inset: 0;
   z-index: 120;
-  background: rgba(22, 34, 30, 0.6);
+  background: rgba(0, 0, 0, 0.74);
+  backdrop-filter: blur(10px);
   display: grid;
   place-items: center;
   padding: 20px;
@@ -89,7 +90,7 @@ a.hcard-media:visited {
   position: fixed;
   inset: 0;
   z-index: 130;
-  background: rgba(15, 26, 22, 0.94);
+  background: rgba(0, 0, 0, 0.96);
   display: grid;
   place-items: center;
   padding: 18px;
@@ -270,7 +271,7 @@ a.hcard-media:visited {
 .photo-card {
   position: relative;
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--card);
   border-radius: var(--r-md);
   overflow: hidden;
 }

@@ -7,9 +7,11 @@ import Browse from './pages/Browse';
 import Hostel from './pages/Hostel';
 import { Documentation, Privacy, Terms } from './pages/Legal';
 import Owner from './pages/Owner';
+import Saved from './pages/Saved';
 
 const TITLES = {
   '/': 'BUhostels - Hostels near Busitema University',
+  '/saved': 'Saved hostels - BUhostels',
   '/login': 'Sign in - BUhostels',
   '/terms': 'Terms of Use - BUhostels',
   '/privacy': 'Privacy Policy - BUhostels',
@@ -63,6 +65,7 @@ export default function App() {
       <Routes>
         <Route element={<PublicLayout />}>
           <Route index element={<Browse />} />
+          <Route path="saved" element={<Saved />} />
           <Route path="hostel/:id" element={<Hostel />} />
           <Route path="terms" element={<Terms />} />
           <Route path="privacy" element={<Privacy />} />

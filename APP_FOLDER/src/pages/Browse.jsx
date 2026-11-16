@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import FilterPanel from '../components/FilterPanel';
 import HostelCard from '../components/HostelCard';
+import Marquee from '../components/Marquee';
+import MediaShowcase from '../components/MediaShowcase';
+import Stars from '../components/Stars';
 import Icon from '../lib/icons';
 import { api, track } from '../lib/api';
 import { debounce, fmtMoney, genderLabel } from '../lib/format';
@@ -186,51 +189,78 @@ export default function Browse() {
   };
 
   const areas = (facets && facets.areas) || [];
+  const heroImages = items.map((item) => item.cover).filter(Boolean).slice(0, 3);
+
+  const pickArea = (name) => {
+    setState((current) => ({ ...current, area: current.area === name ? '' : name }));
+    document.getElementById('results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <>
       <section className="hero">
-        <div className="wrap hero-grid">
-          <div>
-            <p className="eyebrow">{'Busitema University \u00b7 student housing'}</p>
-            <h1>Hostels near campus, with the prices up front.</h1>
-            <p className="lede">
-              Compare rooms by price and distance, look through real photos, then message the owner on WhatsApp. No more
-              asking around for numbers.
-            </p>
-            <form className="hero-search" role="search" onSubmit={submitHero}>
-              <div className="hs-field">
-                <Icon name="search" />
-                <label className="sr" htmlFor="hq">
-                  Hostel name or area
-                </label>
-                <input
-                  id="hq"
-                  type="search"
-                  placeholder="Hostel name or area"
-                  autoComplete="off"
-                  value={heroQ}
-                  onChange={(event) => setHeroQ(event.target.value)}
-                />
-              </div>
-              <label className="sr" htmlFor="harea">
-                Area
+        <div className="hero-glow" aria-hidden="true" />
+        <div className="wrap hero-inner">
+          <p className="eyebrow">Busitema University \u00b7 Student housing</p>
+          <h1 className="display glow">Find your room.</h1>
+          <p className="lede">
+            Compare hostels near campus by price and distance. Real photos, real prices and a direct line to the owner.
+          </p>
+          <form className="hero-search" role="search" onSubmit={submitHero}>
+            <div className="hs-field">
+              <Icon name="search" />
+              <label className="sr" htmlFor="hq">
+                Hostel name or area
               </label>
-              <select id="harea" value={heroArea} onChange={(event) => setHeroArea(event.target.value)}>
-                <option value="">Any area</option>
-                {areas.map((area) => (
-                  <option key={area.name} value={area.name}>
-                    {area.name} ({area.count})
-                  </option>
-                ))}
-              </select>
-              <button className="btn btn-clay" type="submit">
-                Search
-              </button>
-            </form>
-          </div>
+              <input
+                id="hq"
+                type="search"
+                placeholder="Hostel name or area"
+                autoComplete="off"
+                value={heroQ}
+                onChange={(event) => setHeroQ(event.target.value)}
+              />
+            </div>
+            <label className="sr" htmlFor="harea">
+              Area
+            </label>
+            <select id="harea" value={heroArea} onChange={(event) => setHeroArea(event.target.value)}>
+              <option value="">Any area</option>
+              {areas.map((area) => (
+                <option key={area.name} value={area.name}>
+                  {area.name} ({area.count})
+                </option>
+              ))}
+            </select>
+            <button className="btn btn-accent" type="submit">
+              <Icon name="search" />
+              Search
+            </button>
+          </form>
+          <Stars />
+          {areas.length ? (
+            <div className="hero-tags" aria-label="Popular areas">
+              {areas.slice(0, 5).map((area) => (
+                <button
+                  type="button"
+                  key={area.name}
+                  className={`hero-tag${state.area === area.name ? ' on' : ''}`}
+                  onClick={() => pickArea(area.name)}
+                >
+                  {area.name}
+                  <span>{area.count}</span>
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
       </section>
+
+      <Marquee />
+
+      <div className="wrap">
+        <MediaShowcase images={heroImages} />
+      </div>
 
       <main className="wrap" id="results">
         <div className="browse-grid">
@@ -247,8 +277,17 @@ export default function Browse() {
 
           <section aria-live="polite">
             <div className="results-head">
-              <div>
-                <h2 id="count">{total === 1 ? '1 hostel' : `${total} hostels`}</h2>
+              <div className="results-title">
+                <h2 className="display-sm glow" id="count">
+                  Pick your hostel.
+                </h2>
+                <p className="page-sub">
+                  {loading
+                    ? 'Loading hostels near campus\u2026'
+                    : total === 1
+                      ? '1 hostel matches your search.'
+                      : `${total} hostels near campus.`}
+                </p>
                 <div className="chips">
                   {activeFilters.map((filter) => (
                     <button
@@ -287,6 +326,7 @@ export default function Browse() {
             <div className="grid">
               {loading ? (
                 <>
+                  <div className="skel skel-card" />
                   <div className="skel skel-card" />
                   <div className="skel skel-card" />
                   <div className="skel skel-card" />
@@ -330,6 +370,29 @@ export default function Browse() {
                 </button>
               ) : null}
             </div>
+
+            <section className="how-band">
+              <p className="eyebrow">Simple by design</p>
+              <h2 className="display-sm glow">How this actually works.</h2>
+              <p className="page-sub">No agents, no booking fees. Three steps and you are talking to the owner.</p>
+              <div className="how-grid">
+                <article className="how-card">
+                  <span className="how-num">01</span>
+                  <h3>Search your area</h3>
+                  <p>Filter by price, distance, room type and amenities. Every listing shows the semester price up front.</p>
+                </article>
+                <article className="how-card">
+                  <span className="how-num">02</span>
+                  <h3>Compare and save</h3>
+                  <p>Look through real photos, check what is included, and tap the heart to keep your shortlist.</p>
+                </article>
+                <article className="how-card">
+                  <span className="how-num">03</span>
+                  <h3>Message the owner</h3>
+                  <p>Call or WhatsApp directly from the listing. Always inspect the room and agree the price before paying.</p>
+                </article>
+              </div>
+            </section>
           </section>
         </div>
       </main>

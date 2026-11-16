@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import HelpFab from '../components/HelpFab';
 import HostelCard from '../components/HostelCard';
 import { useToast } from '../context/ToastContext';
 import Icon from '../lib/icons';
 import { api, track } from '../lib/api';
+import { isSaved, subscribeSaved, toggleSaved } from '../lib/saved';
 import {
   availability,
   fmtMoney,
@@ -24,7 +26,9 @@ export default function Hostel() {
   const [error, setError] = useState('');
   const [currentImage, setCurrentImage] = useState(0);
   const [lightbox, setLightbox] = useState(null);
+  const [saved, setSaved] = useState(false);
   const mainRef = useRef(null);
+  const hostelId = hostel?.id;
 
   useEffect(() => {
     let cancelled = false;
@@ -68,6 +72,12 @@ export default function Hostel() {
     document.body.classList.add('has-cta');
     return () => document.body.classList.remove('has-cta');
   }, []);
+
+  useEffect(() => {
+    if (!hostelId) return undefined;
+    setSaved(isSaved(hostelId));
+    return subscribeSaved(() => setSaved(isSaved(hostelId)));
+  }, [hostelId]);
 
   useEffect(() => {
     if (lightbox == null || !hostel) return undefined;
@@ -167,10 +177,21 @@ export default function Hostel() {
               {hidden ? <span className="tag bad">Hidden from visitors</span> : null}
             </div>
           </div>
-          <button className="btn btn-ghost btn-sm" type="button" onClick={share}>
-            <Icon name="share" />
-            Share
-          </button>
+          <div className="h-head-actions">
+            <button
+              className={`btn btn-ghost btn-sm${saved ? ' is-saved' : ''}`}
+              type="button"
+              aria-pressed={saved}
+              onClick={() => toggleSaved(hostel)}
+            >
+              <Icon name="heart" />
+              {saved ? 'Saved' : 'Save'}
+            </button>
+            <button className="btn btn-ghost btn-sm" type="button" onClick={share}>
+              <Icon name="share" />
+              Share
+            </button>
+          </div>
         </header>
 
         <div className="h-grid">
@@ -389,6 +410,8 @@ export default function Hostel() {
           Call
         </a>
       </div>
+
+      <HelpFab hostel={hostel} />
 
       {lightbox != null && images.length ? (
         <div className="lightbox-backdrop" onClick={(event) => event.target === event.currentTarget && setLightbox(null)}>
