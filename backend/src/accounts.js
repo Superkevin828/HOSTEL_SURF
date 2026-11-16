@@ -65,6 +65,7 @@ async function createOwnerAccount({ email, password, full_name, phone, status = 
       subject: 'NEW OWNER!!',
       html: '<h1>This email is to inform you the admin</h1><p>New user has created an account as owner go and approve</p>',
 });
+console.log("email sent successfully, wait for approval from admin")
   }
   return inserted.data;
 
