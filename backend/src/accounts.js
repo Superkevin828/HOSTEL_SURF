@@ -57,11 +57,13 @@ async function createOwnerAccount({ email, password, full_name, phone, status = 
     throw httpError(500, 'Could not create the account. Please try again.');
   } else {
     await sendOwnerWelcomeEmail(inserted.data);
-    if (status === 'pending') {
+    const notificationEmail = String(process.env.OWNER_SIGNUP_NOTIFY_EMAIL || '').trim();
+    if (status === 'pending' && notificationEmail) {
       await sendEmail({
-        to: 'lyavalakevin@gmail.com',
+        to: notificationEmail,
         subject: 'New owner waiting for approval',
         html: `<h1>New owner registration</h1><p>${escapeHtml(name)} (${escapeHtml(mail)}) has registered as an owner and is waiting for approval.</p>`,
+        text: `New owner registration\n\n${name} (${mail}) has registered as an owner and is waiting for approval.`,
       });
     }
   }

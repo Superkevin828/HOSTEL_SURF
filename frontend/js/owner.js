@@ -257,23 +257,39 @@
 
     const base = h ? '#hostel/' + h.id : '';
     main.innerHTML =
-      '<div class="dhead"><div><p class="eyebrow">' + (h ? 'Editing' : 'New hostel') + '</p><h1>' + esc(h ? h.name : 'Add a hostel') + '</h1></div>' +
+      '<div class="dhead"><div><p class="eyebrow">' + (tab === 'setup' ? 'New listing' : h ? 'Editing' : 'New hostel') + '</p><h1>' + esc(tab === 'setup' ? 'Complete your listing' : h ? h.name : 'Add a hostel') + '</h1></div>' +
       '<div class="acts">' + (h ? '<a class="btn btn-ghost" target="_blank" rel="noopener" href="hostel.html?id=' + esc(h.id) + '">' + icon('eye') + 'See public page</a>' : '') +
       '<a class="btn btn-ghost" href="#hostels">Back to list</a></div></div>' +
-      '<div class="etabs">' +
-        '<a class="' + (tab === 'details' ? 'on' : '') + '" href="' + (h ? base + '/details' : '#hostel/new') + '">Details</a>' +
-        '<a class="' + (tab === 'rooms' ? 'on' : '') + (h ? '' : ' off') + '" href="' + base + '/rooms">Rooms &amp; prices' + (h ? ' (' + h.rooms.length + ')' : '') + '</a>' +
-        '<a class="' + (tab === 'photos' ? 'on' : '') + (h ? '' : ' off') + '" href="' + base + '/photos">Photos' + (h ? ' (' + h.images.length + ')' : '') + '</a>' +
-      '</div><div id="tabBody"></div>';
+      (h && tab !== 'setup'
+        ? '<div class="etabs">' +
+            '<a class="' + (tab === 'details' ? 'on' : '') + '" href="' + base + '/details">Details</a>' +
+            '<a class="' + (tab === 'rooms' ? 'on' : '') + '" href="' + base + '/rooms">Rooms &amp; prices (' + h.rooms.length + ')</a>' +
+            '<a class="' + (tab === 'photos' ? 'on' : '') + '" href="' + base + '/photos">Photos (' + h.images.length + ')</a>' +
+          '</div>'
+        : '') + '<div id="tabBody"></div>';
 
     const body = $('#tabBody');
+    if (tab === 'setup' && h) return setupTab(body, h);
     if (tab === 'rooms' && h) roomsTab(body, h);
     else if (tab === 'photos' && h) photosTab(body, h);
     else detailsTab(body, h);
   }
 
+  function setupTab(body, h) {
+    body.innerHTML =
+      '<div class="listing-setup">' +
+        '<section class="setup-section"><div class="setup-heading"><h2>Hostel details</h2><p>Keep your location and contact details up to date.</p></div><div id="setupDetails"></div></section>' +
+        '<section class="setup-section"><div class="setup-heading"><h2>Rooms and prices</h2><p>Add the room types students can book and their semester prices.</p></div><div id="setupRooms"></div></section>' +
+        '<section class="setup-section"><div class="setup-heading"><h2>Photos</h2><p>Show the rooms, bathroom, and shared spaces clearly.</p></div><div id="setupPhotos"></div></section>' +
+      '</div>';
+
+    detailsTab($('#setupDetails'), h, true);
+    roomsTab($('#setupRooms'), h);
+    photosTab($('#setupPhotos'), h);
+  }
+
   // — details —
-  function detailsTab(body, h) {
+  function detailsTab(body, h, keepSetup = false) {
     const v = h
       ? hostelBody(h)
       : { name: '', description: '', area: me.location || '', address: '', distance_km: '', campus: me.campus || '', latitude: '', longitude: '', phone: me.phone || '', whatsapp: '', gender: 'mixed', amenities: [], status: 'published' };
@@ -297,7 +313,7 @@
         '<div class="field span2"><label class="check"><input type="checkbox" id="fLive"' + (v.status === 'published' ? ' checked' : '') + '><span>Visible to students</span></label><span class="hint">Untick to hide the hostel without deleting it.</span></div>' +
       '</div><div class="form-err" id="hErr" role="alert" style="margin-top:14px"></div>' +
       '<div class="form-foot"><button class="btn btn-solid" type="submit" id="hSave">' + (h ? 'Save changes' : 'Create hostel') + '</button>' +
-      (h ? '' : '<span class="muted">You will add rooms and photos next.</span>') + '</div></form>';
+      (h ? '' : '<span class="muted">After saving, add rooms and photos together on one page.</span>') + '</div></form>';
 
     $('#fGeo').addEventListener('click', () => {
       if (!navigator.geolocation) return toast('This browser cannot share your location.', 'err');
@@ -327,11 +343,11 @@
           if (h) {
             await api('/owner/hostels/' + h.id, { method: 'PUT', body: payload });
             toast('Saved', 'ok');
-            viewEditor(h.id, 'details');
+            viewEditor(h.id, keepSetup ? 'setup' : 'details');
           } else {
             const r = await api('/owner/hostels', { method: 'POST', body: payload });
-            toast('Hostel created. Now add your rooms.', 'ok');
-            location.hash = '#hostel/' + r.hostel.id + '/rooms';
+            toast('Hostel saved. Add rooms and photos below.', 'ok');
+            location.hash = '#hostel/' + r.hostel.id + '/setup';
           }
         } catch (ex) {
           err.textContent = ex.message;

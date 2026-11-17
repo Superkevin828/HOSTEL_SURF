@@ -8,6 +8,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const { admin } = require('./src/supabase');
+const { validateEmailConfig } = require('./src/email');
 
 const missing = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'].filter((k) => !process.env[k]);
 if (missing.length) {
@@ -15,6 +16,13 @@ if (missing.length) {
     `\n[BUhostels] These are missing from backend/.env: ${missing.join(', ')}\n` +
       'Copy .env.example to .env and fill them in (Supabase dashboard → Project Settings → API).\n'
   );
+  process.exit(1);
+}
+
+try {
+  validateEmailConfig();
+} catch (error) {
+  console.error(`\n[BUhostels] ${error.message}\n`);
   process.exit(1);
 }
 

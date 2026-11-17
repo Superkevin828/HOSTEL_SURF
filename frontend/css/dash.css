@@ -353,6 +353,25 @@ body.dashboard {
   opacity: 0.45;
   pointer-events: none;
 }
+.listing-setup {
+  display: grid;
+  gap: 26px;
+  max-width: 980px;
+}
+.setup-section + .setup-section {
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.setup-heading {
+  margin-bottom: 12px;
+}
+.setup-heading h2 {
+  margin: 0 0 4px;
+}
+.setup-heading p {
+  margin: 0;
+  color: var(--mute);
+}
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

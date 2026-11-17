@@ -3,6 +3,7 @@ const { admin, BUCKET } = require('../supabase');
 const { must, httpError } = require('../db');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { createOwnerAccount } = require('../accounts');
+const { sendOwnerApprovedEmail } = require('../email');
 const { logEvent } = require('../events');
 const cache = require('../cache');
 const { isUuid, int, clamp, str, shapeHostel } = require('../util');
@@ -105,6 +106,7 @@ router.patch('/owners/:id/status', async (req, res) => {
   cache.bust();
   const type = status === 'approved' ? 'owner_approved' : status === 'suspended' ? 'owner_suspended' : 'owner_pending';
   logEvent(type, { actor_id: req.user.id, meta: { owner: owner.full_name } });
+  if (status === 'approved' && owner.status !== 'approved') await sendOwnerApprovedEmail(owner);
   res.status(204).end();
 });
 

@@ -18,5 +18,11 @@ services:
         sync: false
       - key: SUPABASE_BUCKET
         value: hostel-images
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: OWNER_SIGNUP_NOTIFY_EMAIL
+        sync: false
       - key: CORS_ORIGIN
         sync: false

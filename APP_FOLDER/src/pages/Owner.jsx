@@ -526,7 +526,7 @@ function Editor({ meta, me, refreshHostels, toast }) {
   const [loading, setLoading] = useState(id !== 'new');
   const [error, setError] = useState('');
   const isNew = id === 'new';
-  const tab = isNew || !['details', 'rooms', 'photos'].includes(rawTab) ? 'details' : rawTab;
+  const tab = rawTab === 'all' && !isNew ? 'all' : isNew || !['details', 'rooms', 'photos'].includes(rawTab) ? 'details' : rawTab;
 
   const loadHostel = useCallback(async () => {
     if (isNew) return null;
@@ -595,26 +595,50 @@ function Editor({ meta, me, refreshHostels, toast }) {
         </div>
       </div>
 
-      <div className="etabs">
-        <Link className={tab === 'details' ? 'on' : ''} to={hostel ? `/owner/hostel/${hostel.id}/details` : '/owner/hostel/new'}>
-          Details
-        </Link>
-        {hostel ? (
-          <Link className={tab === 'rooms' ? 'on' : ''} to={`/owner/hostel/${hostel.id}/rooms`}>
-            Rooms &amp; prices ({hostel.rooms.length})
+      {tab !== 'all' ? (
+        <div className="etabs">
+          <Link className={tab === 'details' ? 'on' : ''} to={hostel ? `/owner/hostel/${hostel.id}/details` : '/owner/hostel/new'}>
+            Details
           </Link>
-        ) : (
-          <span className="off">Rooms &amp; prices</span>
-        )}
-        {hostel ? (
-          <Link className={tab === 'photos' ? 'on' : ''} to={`/owner/hostel/${hostel.id}/photos`}>
-            Photos ({hostel.images.length})
-          </Link>
-        ) : (
-          <span className="off">Photos</span>
-        )}
-      </div>
+          {hostel ? (
+            <Link className={tab === 'rooms' ? 'on' : ''} to={`/owner/hostel/${hostel.id}/rooms`}>
+              Rooms &amp; prices ({hostel.rooms.length})
+            </Link>
+          ) : (
+            <span className="off">Rooms &amp; prices</span>
+          )}
+          {hostel ? (
+            <Link className={tab === 'photos' ? 'on' : ''} to={`/owner/hostel/${hostel.id}/photos`}>
+              Photos ({hostel.images.length})
+            </Link>
+          ) : (
+            <span className="off">Photos</span>
+          )}
+        </div>
+      ) : null}
 
+      {tab === 'all' && hostel ? (
+        <>
+          <DetailsTab
+            key={hostel.id}
+            hostel={hostel}
+            meta={meta}
+            me={me}
+            toast={toast}
+            onSaved={async (saved) => {
+              await refreshHostels();
+              if (saved) setHostel(saved);
+            }}
+            onCreated={() => {}}
+          />
+          <div id="hostel-rooms">
+            <RoomsTab hostel={hostel} meta={meta} me={me} toast={toast} onChanged={changed} />
+          </div>
+          <div id="hostel-photos">
+            <PhotosTab hostel={hostel} me={me} toast={toast} onChanged={changed} />
+          </div>
+        </>
+      ) : null}
       {tab === 'details' ? (
         <DetailsTab
           key={hostel ? hostel.id : 'new'}
@@ -626,9 +650,13 @@ function Editor({ meta, me, refreshHostels, toast }) {
             await refreshHostels();
             if (saved) setHostel(saved);
           }}
-          onCreated={(created) => {
-            refreshHostels();
-            navigate(`/owner/hostel/${created.id}/rooms`);
+          onCreated={async (created) => {
+            setHostel(created);
+            await refreshHostels();
+            navigate(`/owner/hostel/${created.id}/all`);
+            window.requestAnimationFrame(() => {
+              document.getElementById('hostel-rooms')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
           }}
         />
       ) : null}
@@ -877,7 +905,7 @@ function DetailsTab({ hostel, meta, me, toast, onSaved, onCreated }) {
         <button className="btn btn-solid" type="submit" disabled={busy}>
           {busy ? 'Saving...' : hostel ? 'Save changes' : 'Create hostel'}
         </button>
-        {hostel ? null : <span className="muted">You will add rooms and photos next.</span>}
+        {hostel ? null : <span className="muted">Rooms and photo upload will open below after this save.</span>}
       </div>
     </form>
   );
