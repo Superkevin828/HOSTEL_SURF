@@ -1,14 +1,10 @@
 const { Resend } = require('resend');
 const EMAIL_ADDRESS_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Email delivery is optional: missing Resend settings should not prevent the API from starting.
 function validateEmailConfig() {
-  if (process.env.NODE_ENV !== 'production') return;
-
-  const required = ['RESEND_API_KEY', 'RESEND_FROM_EMAIL', 'OWNER_SIGNUP_NOTIFY_EMAIL'];
-  const missing = required.filter((key) => !String(process.env[key] || '').trim());
-  if (missing.length) throw new Error(`Missing production email configuration: ${missing.join(', ')}`);
-
-  if (!EMAIL_ADDRESS_RE.test(process.env.OWNER_SIGNUP_NOTIFY_EMAIL.trim())) {
+  const notificationEmail = String(process.env.OWNER_SIGNUP_NOTIFY_EMAIL || '').trim();
+  if (notificationEmail && !EMAIL_ADDRESS_RE.test(notificationEmail)) {
     throw new Error('OWNER_SIGNUP_NOTIFY_EMAIL must be a valid email address.');
   }
 }
@@ -57,7 +53,6 @@ async function sendEmail({ to, subject, html, text }) {
     return false;
   }
 }
-
 
 async function sendOwnerWelcomeEmail(profile) {
   const name = escapeHtml(profile.full_name);
