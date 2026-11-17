@@ -6,6 +6,7 @@ const { must, httpError } = require('../db');
 const { requireAuth, requireRole, requireApproved } = require('../middleware/auth');
 const { logEvent } = require('../events');
 const { publicProfile } = require('../accounts');
+const { sendHostelCreatedEmail } = require('../email');
 const cache = require('../cache');
 const { isUuid, int, clamp, parseHostel, parseRoom, shapeHostel } = require('../util');
 
@@ -80,6 +81,7 @@ router.post('/hostels', requireApproved, async (req, res) => {
   );
   cache.bust();
   logEvent('hostel_created', { hostel_id: row.id, actor_id: req.user.id, meta: actorMeta(req, { hostel: row.name }) });
+  await sendHostelCreatedEmail(req.user, row);
   res.status(201).json({ hostel: shapeHostel(row) });
 });
 

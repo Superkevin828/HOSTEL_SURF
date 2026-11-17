@@ -1,7 +1,7 @@
-const { Resend } = require('resend');
 const { admin, authClient } = require('./supabase');
 const { httpError } = require('./db');
 const { EMAIL_RE, str, normalizePhone, parseBusiness } = require('./util');
+const { escapeHtml, sendEmail, sendOwnerWelcomeEmail } = require('./email');
 
 // Creates an auth user + owner profile. Used by public sign-up (pending) and admin "add owner" (approved).
 async function createOwnerAccount({ email, password, full_name, phone, status = 'pending', accepted_policies = false, ...rest }) {
@@ -55,17 +55,15 @@ async function createOwnerAccount({ email, password, full_name, phone, status = 
     console.error('[accounts] profile insert failed:', inserted.error.message);
     await admin.auth.admin.deleteUser(created.data.user.id);
     throw httpError(500, 'Could not create the account. Please try again.');
-  }else{      
-
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
-    await resend.emails.send({
-      from: 'Acme <onboarding@resend.dev>',
-      to: ['lyavalakevin@gmail.com'],
-      subject: 'NEW OWNER!!',
-      html: '<h1>This email is to inform you the admin</h1><p>New user has created an account as owner go and approve</p>',
-});
-console.log("email sent successfully, wait for approval from admin")
+  } else {
+    await sendOwnerWelcomeEmail(inserted.data);
+    if (status === 'pending') {
+      await sendEmail({
+        to: 'lyavalakevin@gmail.com',
+        subject: 'New owner waiting for approval',
+        html: `<h1>New owner registration</h1><p>${escapeHtml(name)} (${escapeHtml(mail)}) has registered as an owner and is waiting for approval.</p>`,
+      });
+    }
   }
   return inserted.data;
 
