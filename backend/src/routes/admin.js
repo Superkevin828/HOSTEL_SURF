@@ -152,7 +152,7 @@ router.get('/hostels', async (req, res) => {
   const [hostelsRes, statsRes] = await Promise.all([
     admin
       .from('hostels')
-      .select('*, owner:profiles(full_name,phone,status), rooms(id,price), hostel_images(id)')
+      .select('*, owner:profiles(full_name,phone,status), rooms(*, room_images(*)), hostel_images(id)')
       .order('created_at', { ascending: false })
       .range(0, 999),
     admin.from('hostel_stats').select('hostel_id,views,contacts').range(0, 4999),

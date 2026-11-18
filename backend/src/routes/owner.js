@@ -8,14 +8,14 @@ const { logEvent } = require('../events');
 const { publicProfile } = require('../accounts');
 const { sendHostelCreatedEmail } = require('../email');
 const cache = require('../cache');
-const { isUuid, int, clamp, parseHostel, parseRoom, shapeHostel } = require('../util');
+const { isUuid, str, int, clamp, parseHostel, parseRoom, shapeHostel, shapeRoom } = require('../util');
 
 const router = express.Router();
 router.use(requireAuth, requireRole('owner'));
 
-const MAX_HOSTELS = 10;
 const MAX_PHOTOS = 20;
-const SELECT_FULL = '*, rooms(*), hostel_images(*)';
+const ROOM_PHOTOS = 3;
+const SELECT_FULL = '*, rooms(*, room_images(*)), hostel_images(*)';
 
 const actorMeta = (req, extra = {}) => ({ actor: req.user.full_name, ...extra });
 
@@ -31,10 +31,43 @@ async function ownHostel(req, id) {
 
 async function ownRoom(req, roomId) {
   if (!isUuid(roomId)) throw httpError(404, 'Room not found.');
-  const room = must(await admin.from('rooms').select('*').eq('id', roomId).maybeSingle(), 'room');
+  const room = must(await admin.from('rooms').select('*, room_images(*)').eq('id', roomId).maybeSingle(), 'room');
   if (!room) throw httpError(404, 'Room not found.');
   const hostel = await ownHostel(req, room.hostel_id);
   return { room, hostel };
+}
+
+// A new or edited room must always carry exactly 3 staged photos owned by this owner.
+function parseRoomPhotos(req, input) {
+  const list = Array.isArray(input) ? input : [];
+  if (list.length !== ROOM_PHOTOS) throw httpError(400, 'Upload 3 photos for this room.');
+  const prefix = `rooms/${req.user.id}/`;
+  const seen = new Set();
+  const photos = [];
+  for (const item of list) {
+    const path = str(item && item.path, 400);
+    const url = str(item && item.url, 600);
+    if (!path.startsWith(prefix) || !url || seen.has(path)) throw httpError(400, 'Upload 3 photos for this room.');
+    seen.add(path);
+    photos.push({ path, url });
+  }
+  return photos;
+}
+
+async function fileExists(path) {
+  const slash = path.lastIndexOf('/');
+  const dir = slash === -1 ? '' : path.slice(0, slash);
+  const name = slash === -1 ? path : path.slice(slash + 1);
+  const { data, error } = await admin.storage.from(BUCKET).list(dir, { limit: 1000, search: name });
+  if (error) return false;
+  return (data || []).some((f) => f.name === name);
+}
+
+async function photosExist(photos) {
+  for (const p of photos) {
+    if (!(await fileExists(p.path))) return false;
+  }
+  return true;
 }
 
 // ───────────── overview numbers ─────────────
@@ -70,11 +103,13 @@ router.get('/hostels/:id', async (req, res) => {
 });
 
 router.post('/hostels', requireApproved, async (req, res) => {
-  const values = parseHostel(req.body);
-  const count = await admin.from('hostels').select('id', { count: 'exact', head: true }).eq('owner_id', req.user.id);
-  if (count.error) must(count, 'count hostels');
-  if ((count.count || 0) >= MAX_HOSTELS) throw httpError(400, `You can list up to ${MAX_HOSTELS} hostels.`);
+  const existing = must(
+    await admin.from('hostels').select('id').eq('owner_id', req.user.id).limit(1).maybeSingle(),
+    'own hostel'
+  );
+  if (existing) throw httpError(409, 'You already have a hostel. Add rooms to it instead.');
 
+  const values = parseHostel(req.body);
   const row = must(
     await admin.from('hostels').insert({ ...values, owner_id: req.user.id }).select(SELECT_FULL).single(),
     'create hostel'
@@ -87,7 +122,9 @@ router.post('/hostels', requireApproved, async (req, res) => {
 
 router.put('/hostels/:id', requireApproved, async (req, res) => {
   const existing = await ownHostel(req, req.params.id);
-  const values = parseHostel(req.body);
+  const name = str(req.user.business_name, 80) || existing.name;
+  const values = parseHostel({ ...req.body, name });
+  values.name = name;
   const row = must(
     await admin.from('hostels').update(values).eq('id', existing.id).select(SELECT_FULL).single(),
     'update hostel'
@@ -98,13 +135,8 @@ router.put('/hostels/:id', requireApproved, async (req, res) => {
 });
 
 router.delete('/hostels/:id', requireApproved, async (req, res) => {
-  const existing = await ownHostel(req, req.params.id);
-  const paths = (existing.hostel_images || []).map((i) => i.path);
-  if (paths.length) await admin.storage.from(BUCKET).remove(paths);
-  must(await admin.from('hostels').delete().eq('id', existing.id), 'delete hostel');
-  cache.bust();
-  logEvent('hostel_deleted', { actor_id: req.user.id, meta: actorMeta(req, { hostel: existing.name }) });
-  res.status(204).end();
+  await ownHostel(req, req.params.id);
+  throw httpError(403, 'Your hostel cannot be deleted. Contact support.');
 });
 
 // ───────────── rooms ─────────────
@@ -112,32 +144,67 @@ router.delete('/hostels/:id', requireApproved, async (req, res) => {
 router.post('/hostels/:id/rooms', requireApproved, async (req, res) => {
   const hostel = await ownHostel(req, req.params.id);
   if ((hostel.rooms || []).length >= 60) throw httpError(400, 'That is the maximum number of rooms for one hostel.');
+  const photos = parseRoomPhotos(req, req.body && req.body.photos);
+  if (!(await photosExist(photos))) throw httpError(400, 'Upload 3 photos for this room.');
+
   const values = parseRoom(req.body);
   const room = must(await admin.from('rooms').insert({ ...values, hostel_id: hostel.id }).select().single(), 'create room');
+
+  const rows = photos.map((p, i) => ({ room_id: room.id, path: p.path, url: p.url, position: i }));
+  const imgs = await admin.from('room_images').insert(rows).select();
+  if (imgs.error) {
+    console.error('[rooms] room images insert failed:', imgs.error.message);
+    await admin.from('rooms').delete().eq('id', room.id);
+    throw httpError(500, 'The room could not be saved. Please try again.');
+  }
+
   cache.bust();
   logEvent('room_saved', {
     hostel_id: hostel.id,
     actor_id: req.user.id,
     meta: actorMeta(req, { hostel: hostel.name, room: room.name, action: 'added', price: room.price }),
   });
-  res.status(201).json({ room });
+  res.status(201).json({ room: shapeRoom({ ...room, room_images: imgs.data }) });
 });
 
 router.put('/rooms/:roomId', requireApproved, async (req, res) => {
   const { room, hostel } = await ownRoom(req, req.params.roomId);
   const values = parseRoom(req.body);
   const updated = must(await admin.from('rooms').update(values).eq('id', room.id).select().single(), 'update room');
+
+  let images = room.room_images || [];
+  if (req.body && req.body.photos !== undefined) {
+    const photos = parseRoomPhotos(req, req.body.photos);
+    if (!(await photosExist(photos))) throw httpError(400, 'Upload 3 photos for this room.');
+
+    const rows = photos.map((p, i) => ({ room_id: room.id, path: p.path, url: p.url, position: i }));
+    const inserted = await admin.from('room_images').insert(rows).select();
+    if (inserted.error) {
+      console.error('[rooms] room images replace failed:', inserted.error.message);
+      throw httpError(500, 'The room could not be saved. Please try again.');
+    }
+    if (images.length) {
+      const oldIds = images.map((i) => i.id);
+      const oldPaths = images.map((i) => i.path);
+      must(await admin.from('room_images').delete().in('id', oldIds), 'delete old room images');
+      await admin.storage.from(BUCKET).remove(oldPaths);
+    }
+    images = inserted.data;
+  }
+
   cache.bust();
   logEvent('room_saved', {
     hostel_id: hostel.id,
     actor_id: req.user.id,
     meta: actorMeta(req, { hostel: hostel.name, room: updated.name, action: 'updated', price: updated.price }),
   });
-  res.json({ room: updated });
+  res.json({ room: shapeRoom({ ...updated, room_images: images }) });
 });
 
 router.delete('/rooms/:roomId', requireApproved, async (req, res) => {
   const { room, hostel } = await ownRoom(req, req.params.roomId);
+  const paths = (room.room_images || []).map((i) => i.path);
+  if (paths.length) await admin.storage.from(BUCKET).remove(paths);
   must(await admin.from('rooms').delete().eq('id', room.id), 'delete room');
   cache.bust();
   logEvent('room_deleted', {
@@ -149,6 +216,33 @@ router.delete('/rooms/:roomId', requireApproved, async (req, res) => {
 });
 
 // ───────────── photos ─────────────
+
+// Staged room photos: upload one photo at a time and get back its path + url.
+// No database row is written until the room is saved.
+const roomUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 6 * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, cb) => {
+    if (/^image\/(jpeg|png|webp)$/.test(file.mimetype)) return cb(null, true);
+    cb(httpError(400, 'Only JPG, PNG or WebP photos are allowed.'));
+  },
+});
+
+router.post('/room-photos', requireApproved, roomUpload.single('photo'), async (req, res) => {
+  const file = req.file;
+  if (!file) throw httpError(400, 'Choose a photo.');
+  const ext = file.mimetype === 'image/png' ? 'png' : file.mimetype === 'image/webp' ? 'webp' : 'jpg';
+  const objectPath = `rooms/${req.user.id}/${randomUUID()}.${ext}`;
+  const up = await admin.storage
+    .from(BUCKET)
+    .upload(objectPath, file.buffer, { contentType: file.mimetype, cacheControl: '31536000', upsert: false });
+  if (up.error) {
+    console.error('[room-photos] upload failed:', up.error.message);
+    throw httpError(500, 'The photo upload failed. Please try again.');
+  }
+  const { data } = admin.storage.from(BUCKET).getPublicUrl(objectPath);
+  res.status(201).json({ path: objectPath, url: data.publicUrl });
+});
 
 const upload = multer({
   storage: multer.memoryStorage(),

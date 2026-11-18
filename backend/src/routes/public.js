@@ -8,6 +8,14 @@ const { AMENITIES, CAMPUSES, ROOM_TYPES, GENDERS, str, int, num, clamp, isUuid, 
 
 const router = express.Router();
 
+// First photo of the first room that has one (used when a hostel has no cover of its own).
+const firstRoomPhoto = (rooms) => {
+  for (const r of rooms || []) {
+    if (r.images && r.images.length) return r.images[0].url;
+  }
+  return null;
+};
+
 // ───────────── data loading (cached for a few seconds) ─────────────
 
 async function loadPublished() {
@@ -19,7 +27,7 @@ async function loadPublished() {
       .from('hostels')
       .select(
         'id,name,area,address,campus,distance_km,phone,whatsapp,gender,amenities,featured,created_at,' +
-          'owner:profiles(status),rooms(id,type,price,available),hostel_images(url,is_cover,created_at)'
+          'owner:profiles(status),rooms(id,type,price,available,created_at,room_images(url,position)),hostel_images(url,is_cover,created_at)'
       )
       .eq('status', 'published')
       .range(0, 999),
@@ -47,8 +55,8 @@ async function loadPublished() {
         featured: s.featured,
         created_at: s.created_at,
         rooms: s.rooms.map((r) => ({ type: r.type, price: Number(r.price), available: r.available })),
-        cover: s.images[0] ? s.images[0].url : null,
-        image_count: s.images.length,
+        cover: s.images[0] ? s.images[0].url : firstRoomPhoto(s.rooms),
+        image_count: s.images.length + s.rooms.reduce((n, r) => n + (r.images ? r.images.length : 0), 0),
         views: viewsById.get(s.id) || 0,
       };
     });
@@ -190,7 +198,7 @@ router.get('/hostels/:id', async (req, res) => {
   const row = must(
     await admin
       .from('hostels')
-      .select('*, owner:profiles(full_name,status,business_name,avatar_url), rooms(*), hostel_images(*)')
+      .select('*, owner:profiles(full_name,status,business_name,avatar_url), rooms(*, room_images(*)), hostel_images(*)')
       .eq('id', req.params.id)
       .maybeSingle(),
     'hostel detail'
@@ -239,8 +247,11 @@ router.get('/hostels/:id', async (req, res) => {
         price: Number(r.price),
         available: r.available,
         description: r.description,
+        images: (r.images || []).map((i) => ({ id: i.id, url: i.url, position: i.position })),
       })),
-      images: h.images.map((i) => ({ id: i.id, url: i.url, is_cover: i.is_cover })),
+      images: h.images.length
+        ? h.images.map((i) => ({ id: i.id, url: i.url, is_cover: i.is_cover }))
+        : h.rooms.flatMap((r) => (r.images || []).map((i) => ({ id: i.id, url: i.url, is_cover: false }))),
     },
     related,
   });

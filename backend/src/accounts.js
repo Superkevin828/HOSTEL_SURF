@@ -55,7 +55,30 @@ async function createOwnerAccount({ email, password, full_name, phone, status = 
     console.error('[accounts] profile insert failed:', inserted.error.message);
     await admin.auth.admin.deleteUser(created.data.user.id);
     throw httpError(500, 'Could not create the account. Please try again.');
-  } else {
+  }
+
+  // One hostel per owner, built from the business details given at sign-up.
+  const hostel = await admin
+    .from('hostels')
+    .insert({
+      owner_id: inserted.data.id,
+      name: business.business_name,
+      area: business.location,
+      address: business.address,
+      campus: business.campus,
+      phone: tel,
+      whatsapp: tel,
+      status: 'published',
+    })
+    .select()
+    .single();
+  if (hostel.error) {
+    console.error('[accounts] hostel insert failed:', hostel.error.message);
+    await admin.auth.admin.deleteUser(created.data.user.id);
+    throw httpError(500, 'Could not create the account. Please try again.');
+  }
+
+  {
     await sendOwnerWelcomeEmail(inserted.data);
     const notificationEmail = String(process.env.OWNER_SIGNUP_NOTIFY_EMAIL || '').trim();
     if (status === 'pending' && notificationEmail) {

@@ -159,12 +159,21 @@ function parseRoom(b = {}) {
   };
 }
 
+// Room row + nested room_images → tidy room with images ordered by position.
+function shapeRoom(r) {
+  const { room_images, ...rest } = r;
+  const images = [...(room_images || [])]
+    .sort((a, b) => Number(a.position) - Number(b.position) || new Date(a.created_at) - new Date(b.created_at))
+    .map((i) => ({ id: i.id, url: i.url, position: Number(i.position) }));
+  return { ...rest, images };
+}
+
 // Hostel row + nested rows → tidy object with sorted rooms and images (cover first).
 function shapeHostel(row) {
   const images = [...(row.hostel_images || [])].sort(
     (a, b) => Number(b.is_cover) - Number(a.is_cover) || new Date(a.created_at) - new Date(b.created_at)
   );
-  const rooms = [...(row.rooms || [])].sort((a, b) => a.price - b.price);
+  const rooms = [...(row.rooms || [])].sort((a, b) => a.price - b.price).map(shapeRoom);
   const { hostel_images, ...rest } = row;
   return { ...rest, distance_km: row.distance_km == null ? null : Number(row.distance_km), rooms, images };
 }
@@ -184,5 +193,6 @@ module.exports = {
   parseHostel,
   parseBusiness,
   parseRoom,
+  shapeRoom,
   shapeHostel,
 };
