@@ -316,6 +316,7 @@
           '</div>' +
           '<div class="hostel-actions">' +
             (approved ? '<button class="btn btn-ghost btn-sm" id="editDetails" type="button">' + icon('edit') + 'Edit details</button>' : '') +
+            (approved ? '<button class="btn btn-ghost btn-sm" id="uploadPhoto" type="button">' + icon('camera') + 'Upload photo</button><input type="file" id="coverFile" accept="image/jpeg,image/png,image/webp" hidden>' : '') +
             '<a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="hostel.html?id=' + esc(h.id) + '">' + icon('eye') + 'See public page</a>' +
           '</div>' +
         '</div>' +
@@ -345,6 +346,12 @@
     }
     const ed = $('#editDetails');
     if (ed) ed.addEventListener('click', () => openHostelForm(h, false));
+    const upBtn = $('#uploadPhoto');
+    const upFile = $('#coverFile');
+    if (upBtn && upFile) {
+      upBtn.addEventListener('click', () => upFile.click());
+      upFile.addEventListener('change', () => uploadHostelPhoto(h, upFile, upBtn));
+    }
     const ar = $('#addRoom');
     if (ar) ar.addEventListener('click', () => openRoomForm(null));
 
@@ -379,6 +386,42 @@
         if (room) deleteRoom(room);
       }
     };
+  }
+
+  async function uploadHostelPhoto(h, input, btn) {
+    const file = input.files && input.files[0];
+    input.value = '';
+    if (!file) return;
+
+    let small;
+    try {
+      small = await BU.shrinkImage(file, 1800, 0.85);
+    } catch (e) {
+      toast(e.message, 'err');
+      return;
+    }
+
+    const label = btn.innerHTML;
+    let uploaded = false;
+    btn.disabled = true;
+    btn.textContent = 'Uploading...';
+    try {
+      const fd = new FormData();
+      fd.append('images', small);
+      const r = await api('/owner/hostels/' + h.id + '/images', { method: 'POST', form: fd });
+      uploaded = true;
+      const img = r.items && r.items[0];
+      if (img) await api('/owner/images/' + img.id + '/cover', { method: 'POST' });
+      toast('Photo uploaded', 'ok');
+      viewHostel(h.id);
+    } catch (e) {
+      toast(e.message, 'err');
+      if (uploaded) viewHostel(h.id);
+      else {
+        btn.disabled = false;
+        btn.innerHTML = label;
+      }
+    }
   }
 
   function roomCard(r) {
@@ -563,9 +606,9 @@
           field('Price per semester (UGX)', '<input id="rfPrice" type="number" min="0" step="1000" inputmode="numeric" value="' + esc(src.price) + '" required>') +
           field('Rooms available', '<input id="rfAvail" type="number" min="0" max="999" inputmode="numeric" value="' + esc(src.available) + '">', 'Put 0 when this type is full.') +
           '<div class="field span2"><label for="rfDesc">Short description (optional)</label><textarea id="rfDesc" maxlength="200" placeholder="e.g. own bathroom, balcony, bed and mattress included">' + esc(src.description || '') + '</textarea><span class="hint"><span id="rfCount">' + esc((src.description || '').length) + '</span>/200</span></div>' +
-          '<div class="field span2"><span class="f-label">Room photos (3 required)</span><div class="slots" id="rfSlots"></div><div class="hint" id="rfCounter" aria-live="polite">0 of 3 uploaded</div></div>' +
+          '<div class="field span2"><span class="f-label">Room photos (optional, up to 3)</span><div class="slots" id="rfSlots"></div><div class="hint" id="rfCounter" aria-live="polite">0 of 3 uploaded</div></div>' +
         '</div><div class="form-err" id="rfErr" role="alert"></div></div>' +
-        '<div class="room-form-foot"><span class="hint" id="rfHelper">Upload all 3 photos to save</span>' +
+        '<div class="room-form-foot"><span class="hint" id="rfHelper">Photos are optional. You can add up to 3.</span>' +
           '<button class="btn btn-solid" type="submit" id="rfSave" disabled>Save room</button></div>' +
       '</form>';
     document.body.appendChild(d);
@@ -611,13 +654,13 @@
       if (uploading) {
         btn.disabled = true;
         btn.textContent = 'Uploading photos...';
-        helper.textContent = 'Upload all 3 photos to save';
+        helper.textContent = 'Wait for the photos to finish uploading.';
         return;
       }
       btn.textContent = editing ? 'Save room' : 'Add room';
-      const ok = done === 3 && validFields();
+      const ok = validFields();
       btn.disabled = !ok;
-      helper.textContent = ok ? '' : done !== 3 ? 'Upload all 3 photos to save' : 'Fill in the required fields';
+      helper.textContent = ok ? (done ? '' : 'Photos are optional. You can add up to 3.') : 'Fill in the required fields';
     }
 
     function updateProgress(i) {
@@ -673,7 +716,8 @@
 
     function samePhotos() {
       if (!originalPaths) return false;
-      return slots.length === originalPaths.length && slots.every((s, i) => s.status === 'done' && s.path === originalPaths[i]);
+      const done = slots.filter((s) => s.status === 'done');
+      return done.length === originalPaths.length && done.every((s, i) => s.path === originalPaths[i]);
     }
 
     const hasUnsaved = () => (editing ? !samePhotos() : slots.some((s) => s.status !== 'empty'));
@@ -727,8 +771,8 @@
       e.preventDefault();
       const err = $('#rfErr');
       err.textContent = '';
-      if (slots.filter((s) => s.status === 'done').length !== 3) {
-        err.textContent = 'Upload 3 photos for this room.';
+      if (slots.some((s) => s.status === 'uploading')) {
+        err.textContent = 'Wait for the photos to finish uploading.';
         return;
       }
       if (!validFields()) {
@@ -742,7 +786,7 @@
         available: $('#rfAvail').value,
         description: $('#rfDesc').value,
       };
-      const photos = slots.map((s) => ({ path: s.path, url: s.url }));
+      const photos = slots.filter((s) => s.status === 'done').map((s) => ({ path: s.path, url: s.url }));
       if (!editing || !samePhotos()) payload.photos = photos;
 
       const btn = $('#rfSave');
