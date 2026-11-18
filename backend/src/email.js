@@ -1,101 +1,71 @@
-const { Resend } = require('resend');
-const EMAIL_ADDRESS_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Email via a free Google Apps Script relay (sends from your Gmail over HTTPS; works on Render free).
+// Env: MAIL_RELAY_URL (Apps Script web app URL), MAIL_RELAY_SECRET (same secret as in the script).
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const NAME = 'BUhostels';
 
-// Email delivery is optional: missing Resend settings should not prevent the API from starting.
 function validateEmailConfig() {
-  const notificationEmail = String(process.env.OWNER_SIGNUP_NOTIFY_EMAIL || '').trim();
-  if (notificationEmail && !EMAIL_ADDRESS_RE.test(notificationEmail)) {
-    throw new Error('OWNER_SIGNUP_NOTIFY_EMAIL must be a valid email address.');
-  }
+  const to = String(process.env.OWNER_SIGNUP_NOTIFY_EMAIL || '').trim();
+  if (to && !EMAIL_RE.test(to)) throw new Error('OWNER_SIGNUP_NOTIFY_EMAIL must be a valid email address.');
 }
 
-function escapeHtml(value) {
-  return String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-  })[character]);
-}
+const escapeHtml = (v) =>
+  String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 async function sendEmail({ to, subject, html, text }) {
-  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
-  const from = String(process.env.RESEND_FROM_EMAIL || '').trim() ||
-    (process.env.NODE_ENV === 'production' ? '' : 'BUhostels <onboarding@resend.dev>');
-
-  if (!apiKey || !from) {
-    console.error('[email] Email is not configured; message was not sent.');
-    return false;
-  }
-  if (typeof to !== 'string' || !EMAIL_ADDRESS_RE.test(to.trim())) {
-    console.error('[email] Message has an invalid recipient; it was not sent.');
-    return false;
-  }
-
+  const url = String(process.env.MAIL_RELAY_URL || '').trim();
+  const secret = String(process.env.MAIL_RELAY_SECRET || '').trim();
+  if (!url || !secret) return console.error('[email] MAIL_RELAY_URL / MAIL_RELAY_SECRET not set; message not sent.'), false;
+  if (typeof to !== 'string' || !EMAIL_RE.test(to.trim())) return console.error('[email] Invalid recipient; not sent.'), false;
   try {
-    const resend = new Resend(apiKey);
-    const { data, error } = await resend.emails.send({
-      from,
-      to: [to.trim()],
-      subject: String(subject || '').replace(/[\r\n]+/g, ' ').trim(),
-      html,
-      text,
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret, to: to.trim(), subject: String(subject || '').replace(/[\r\n]+/g, ' ').trim(), html, text }),
+      signal: AbortSignal.timeout(15000),
     });
-    if (error) {
-      console.error('[email] Resend rejected a message:', error.message);
-      return false;
-    }
-    console.info('[email] Resend accepted a message:', data && data.id ? data.id : 'accepted');
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok || !out.ok) return console.error('[email] Relay rejected a message:', out.error || res.status), false;
+    console.info('[email] Sent');
     return true;
-  } catch (error) {
-    console.error('[email] delivery failed:', error.message || error);
+  } catch (e) {
+    console.error('[email] delivery failed:', e.message || e);
     return false;
   }
 }
 
-async function sendOwnerWelcomeEmail(profile) {
-  const name = escapeHtml(profile.full_name);
-  const businessName = escapeHtml(profile.business_name);
-  const approvalMessage = profile.status === 'pending'
+const money = (n) => `UGX ${Number(n || 0).toLocaleString('en-UG')}`;
+
+function sendOwnerWelcomeEmail(p) {
+  const msg = p.status === 'pending'
     ? 'Your account is waiting for admin approval. We will let you know when you can publish your hostel listings.'
     : 'Your owner account is ready. You can now manage your hostel listings.';
-
   return sendEmail({
-    to: profile.email,
+    to: p.email,
     subject: 'Welcome to BUhostels',
-    html: `<h1>Welcome to BUhostels, ${name}!</h1><p>Your owner account for <strong>${businessName}</strong> has been created.</p><p>${approvalMessage}</p>`,
-    text: `Welcome to BUhostels, ${profile.full_name}!\n\nYour owner account for ${profile.business_name} has been created.\n\n${approvalMessage}`,
+    html: `<h1>Welcome to BUhostels, ${escapeHtml(p.full_name)}!</h1><p>Your owner account for <strong>${escapeHtml(p.business_name)}</strong> has been created.</p><p>${msg}</p>`,
+    text: `Welcome to BUhostels, ${p.full_name}!\n\nYour owner account for ${p.business_name} has been created.\n\n${msg}`,
   });
 }
 
-async function sendOwnerApprovedEmail(profile) {
-  const name = escapeHtml(profile.full_name);
-  const businessName = escapeHtml(profile.business_name);
+function sendOwnerApprovedEmail(p) {
   return sendEmail({
-    to: profile.email,
+    to: p.email,
     subject: 'Your BUhostels owner account is approved',
-    html: `<h1>Your account is approved, ${name}!</h1><p>Your owner account for <strong>${businessName}</strong> has been approved. You can now sign in and publish your hostel listings.</p>`,
-    text: `Your account is approved, ${profile.full_name}!\n\nYour owner account for ${profile.business_name} has been approved. You can now sign in and publish your hostel listings.`,
+    html: `<h1>Your account is approved, ${escapeHtml(p.full_name)}!</h1><p>Your owner account for <strong>${escapeHtml(p.business_name)}</strong> has been approved. You can now sign in and publish your hostel listings.</p>`,
+    text: `Your account is approved, ${p.full_name}!\n\nYour owner account for ${p.business_name} has been approved. You can now sign in and publish your hostel listings.`,
   });
 }
 
-async function sendHostelCreatedEmail(profile, hostel) {
-  const roomRows = (hostel.rooms || []).map((room) =>
-    `<li>${escapeHtml(room.name)} (${escapeHtml(room.type)}): UGX ${Number(room.price || 0).toLocaleString('en-UG')} per semester, ${Number(room.available || 0)} available</li>`
-  ).join('');
-  const roomText = (hostel.rooms || []).map((room) =>
-    `- ${room.name} (${room.type}): UGX ${Number(room.price || 0).toLocaleString('en-UG')} per semester, ${Number(room.available || 0)} available`
-  ).join('\n');
-  const rooms = roomRows ? `<h2>Rooms</h2><ul>${roomRows}</ul>` : '<p>No rooms have been added to this listing yet.</p>';
-  const textRooms = roomText ? `Rooms:\n${roomText}` : 'No rooms have been added to this listing yet.';
-  const status = hostel.status === 'published' ? 'Published' : 'Hidden';
-
+function sendHostelCreatedEmail(p, h) {
+  const rooms = h.rooms || [];
+  const line = (r) => `${r.name} (${r.type}): ${money(r.price)} per semester, ${Number(r.available || 0)} available`;
+  const html = rooms.length ? `<h2>Rooms</h2><ul>${rooms.map((r) => `<li>${escapeHtml(line(r))}</li>`).join('')}</ul>` : '<p>No rooms have been added to this listing yet.</p>';
+  const txt = rooms.length ? `Rooms:\n${rooms.map((r) => `- ${line(r)}`).join('\n')}` : 'No rooms have been added to this listing yet.';
   return sendEmail({
-    to: profile.email,
-    subject: `Your hostel listing was uploaded: ${hostel.name}`,
-    html: `<h1>Hostel listing uploaded successfully</h1><p>Hello ${escapeHtml(profile.full_name)}, your listing has been saved.</p><ul><li><strong>Name:</strong> ${escapeHtml(hostel.name)}</li><li><strong>Area:</strong> ${escapeHtml(hostel.area)}</li><li><strong>Campus:</strong> ${escapeHtml(hostel.campus)}</li><li><strong>Status:</strong> ${escapeHtml(hostel.status)}</li></ul>${rooms}`,
-    text: `Hostel listing uploaded successfully\n\nHello ${profile.full_name}, your listing has been saved.\n\nName: ${hostel.name}\nArea: ${hostel.area}\nCampus: ${hostel.campus}\nStatus: ${status}\n\n${textRooms}`,
+    to: p.email,
+    subject: `Your hostel listing was uploaded: ${h.name}`,
+    html: `<h1>Hostel listing uploaded successfully</h1><p>Hello ${escapeHtml(p.full_name)}, your listing has been saved.</p><ul><li><strong>Name:</strong> ${escapeHtml(h.name)}</li><li><strong>Area:</strong> ${escapeHtml(h.area)}</li><li><strong>Campus:</strong> ${escapeHtml(h.campus)}</li><li><strong>Status:</strong> ${escapeHtml(h.status)}</li></ul>${html}`,
+    text: `Hostel listing uploaded successfully\n\nHello ${p.full_name}, your listing has been saved.\n\nName: ${h.name}\nArea: ${h.area}\nCampus: ${h.campus}\nStatus: ${h.status === 'published' ? 'Published' : 'Hidden'}\n\n${txt}`,
   });
 }
 
