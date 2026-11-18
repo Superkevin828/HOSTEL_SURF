@@ -60,8 +60,16 @@ router.post('/refresh', async (req, res) => {
   res.json({ session: { access_token: s.access_token, refresh_token: s.refresh_token, expires_at: s.expires_at } });
 });
 
-router.get('/me', requireAuth, (req, res) => {
-  res.json({ profile: publicProfile(req.user) });
+router.get('/me', requireAuth, async (req, res) => {
+  let profile = req.user;
+  if (req.user.role === 'owner') {
+    const hostels = must(
+      await admin.from('hostels').select('id').eq('owner_id', req.user.id),
+      'own hostels'
+    ) || [];
+    profile = { ...req.user, hostels_count: hostels.length };
+  }
+  res.json({ profile: publicProfile(profile) });
 });
 
 router.patch('/me', requireAuth, async (req, res) => {

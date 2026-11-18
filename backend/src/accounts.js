@@ -113,6 +113,8 @@ const publicProfile = (p) => ({
   location: p.location || null,
   address: p.address || null,
   avatar_url: p.avatar_url || null,
+  max_hostels: p.max_hostels == null ? 1 : Number(p.max_hostels),
+  ...(p.hostels_count == null ? {} : { hostels_count: Number(p.hostels_count) }),
 });
 
 module.exports = { createOwnerAccount, signIn, publicProfile };

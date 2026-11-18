@@ -3,7 +3,7 @@ const { admin, BUCKET } = require('../supabase');
 const { must, httpError } = require('../db');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { createOwnerAccount } = require('../accounts');
-const { sendOwnerApprovedEmail } = require('../email');
+const { sendOwnerApprovedEmail, sendHostelLimitEmail } = require('../email');
 const { logEvent } = require('../events');
 const cache = require('../cache');
 const { isUuid, int, clamp, str, shapeHostel } = require('../util');
@@ -60,7 +60,7 @@ router.get('/owners', async (req, res) => {
     must(
       await admin
         .from('profiles')
-        .select('id,email,full_name,phone,status,business_name,campus,location,avatar_url,created_at,hostels(id)')
+        .select('id,email,full_name,phone,status,business_name,campus,location,avatar_url,created_at,max_hostels,more_hostels_requested_at,hostels(id)')
         .eq('role', 'owner')
         .order('created_at', { ascending: false })
         .range(0, 999),
@@ -107,6 +107,27 @@ router.patch('/owners/:id/status', async (req, res) => {
   const type = status === 'approved' ? 'owner_approved' : status === 'suspended' ? 'owner_suspended' : 'owner_pending';
   logEvent(type, { actor_id: req.user.id, meta: { owner: owner.full_name } });
   if (status === 'approved' && owner.status !== 'approved') await sendOwnerApprovedEmail(owner);
+  res.status(204).end();
+});
+
+router.patch('/owners/:id/hostel-limit', async (req, res) => {
+  const owner = await findOwner(req.params.id);
+  const limit = Number(req.body && req.body.max_hostels);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 50) {
+    throw httpError(400, 'Choose a number from 1 to 50.');
+  }
+
+  const hostels = must(await admin.from('hostels').select('id').eq('owner_id', owner.id), 'owner hostels') || [];
+  if (limit < hostels.length) throw httpError(400, 'Owner already has more hostels than that.');
+
+  const oldLimit = Number(owner.max_hostels) || 1;
+  must(await admin.from('profiles').update({ max_hostels: limit }).eq('id', owner.id), 'owner hostel limit');
+  cache.bust();
+  logEvent('hostel_limit_changed', {
+    actor_id: req.user.id,
+    meta: { owner: owner.full_name, from: oldLimit, to: limit },
+  });
+  if (limit > oldLimit) await sendHostelLimitEmail(owner, limit);
   res.status(204).end();
 });
 

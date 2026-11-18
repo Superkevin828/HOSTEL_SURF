@@ -6,7 +6,7 @@ const { must, httpError } = require('../db');
 const { requireAuth, requireRole, requireApproved } = require('../middleware/auth');
 const { logEvent } = require('../events');
 const { publicProfile } = require('../accounts');
-const { sendHostelCreatedEmail } = require('../email');
+const { sendHostelCreatedEmail, sendEmail, escapeHtml } = require('../email');
 const cache = require('../cache');
 const { isUuid, str, int, clamp, parseHostel, parseRoom, shapeHostel, shapeRoom } = require('../util');
 
@@ -18,6 +18,18 @@ const ROOM_PHOTOS = 3;
 const SELECT_FULL = '*, rooms(*, room_images(*)), hostel_images(*)';
 
 const actorMeta = (req, extra = {}) => ({ actor: req.user.full_name, ...extra });
+
+const hostelLimit = (req) => {
+  const n = Number(req.user.max_hostels);
+  return Number.isInteger(n) && n >= 1 ? n : 1;
+};
+
+async function ownHostels(req) {
+  return must(
+    await admin.from('hostels').select('id').eq('owner_id', req.user.id),
+    'own hostels'
+  ) || [];
+}
 
 async function ownHostel(req, id) {
   if (!isUuid(id)) throw httpError(404, 'Hostel not found.');
@@ -103,11 +115,15 @@ router.get('/hostels/:id', async (req, res) => {
 });
 
 router.post('/hostels', requireApproved, async (req, res) => {
-  const existing = must(
-    await admin.from('hostels').select('id').eq('owner_id', req.user.id).limit(1).maybeSingle(),
-    'own hostel'
-  );
-  if (existing) throw httpError(409, 'You already have a hostel. Add rooms to it instead.');
+  const existing = await ownHostels(req);
+  const limit = hostelLimit(req);
+  if (existing.length >= limit) {
+    throw httpError(
+      403,
+      `Your account can manage ${limit} hostel${limit === 1 ? '' : 's'}. Request access to add more.`,
+      'HOSTEL_LIMIT'
+    );
+  }
 
   const values = parseHostel(req.body);
   const row = must(
@@ -120,9 +136,51 @@ router.post('/hostels', requireApproved, async (req, res) => {
   res.status(201).json({ hostel: shapeHostel(row) });
 });
 
+router.post('/request-more-hostels', requireApproved, async (req, res) => {
+  const last = req.user.more_hostels_requested_at ? new Date(req.user.more_hostels_requested_at).getTime() : 0;
+  if (last && Date.now() - last < 24 * 60 * 60 * 1000) {
+    throw httpError(429, 'You already sent a request. We will reply by email.');
+  }
+
+  const message = str(req.body && req.body.message, 500);
+  const hostels = await ownHostels(req);
+  const limit = hostelLimit(req);
+  const now = new Date().toISOString();
+
+  must(await admin.from('profiles').update({ more_hostels_requested_at: now }).eq('id', req.user.id), 'request more hostels');
+  req.user.more_hostels_requested_at = now;
+
+  const to = String(process.env.OWNER_SIGNUP_NOTIFY_EMAIL || '').trim();
+  if (to) {
+    await sendEmail({
+      to,
+      subject: 'Owner asks for more hostels',
+      html:
+        '<h1>Owner asks for more hostels</h1>' +
+        `<p><strong>${escapeHtml(req.user.full_name)}</strong> (${escapeHtml(req.user.email)}) would like to manage more hostels.</p>` +
+        '<ul>' +
+        `<li><strong>Business:</strong> ${escapeHtml(req.user.business_name || 'Not set')}</li>` +
+        `<li><strong>Phone:</strong> ${escapeHtml(req.user.phone || 'Not set')}</li>` +
+        `<li><strong>Hostels:</strong> ${hostels.length} of ${limit}</li>` +
+        '</ul>' +
+        (message ? `<p><strong>Message:</strong><br>${escapeHtml(message)}</p>` : ''),
+      text:
+        `Owner asks for more hostels\n\n${req.user.full_name} (${req.user.email}) would like to manage more hostels.\n\n` +
+        `Business: ${req.user.business_name || 'Not set'}\nPhone: ${req.user.phone || 'Not set'}\nHostels: ${hostels.length} of ${limit}` +
+        (message ? `\n\nMessage:\n${message}` : ''),
+    });
+  }
+
+  logEvent('hostels_requested', {
+    actor_id: req.user.id,
+    meta: actorMeta(req, { hostels: hostels.length, limit, message }),
+  });
+  res.json({ ok: true });
+});
+
 router.put('/hostels/:id', requireApproved, async (req, res) => {
   const existing = await ownHostel(req, req.params.id);
-  const name = str(req.user.business_name, 80) || existing.name;
+  const name = existing.name;
   const values = parseHostel({ ...req.body, name });
   values.name = name;
   const row = must(
@@ -199,6 +257,34 @@ router.put('/rooms/:roomId', requireApproved, async (req, res) => {
     meta: actorMeta(req, { hostel: hostel.name, room: updated.name, action: 'updated', price: updated.price }),
   });
   res.json({ room: shapeRoom({ ...updated, room_images: images }) });
+});
+
+router.patch('/rooms/:roomId/booked', requireApproved, async (req, res) => {
+  const { room, hostel } = await ownRoom(req, req.params.roomId);
+  const booked = req.body && req.body.booked;
+  if (typeof booked !== 'boolean') throw httpError(400, 'Choose whether this room is booked.');
+
+  let available = 0;
+  if (!booked) {
+    available = Number(req.body.available);
+    if (!Number.isInteger(available) || available < 1 || available > 999) {
+      throw httpError(400, 'Enter how many rooms are available (1 to 999).');
+    }
+  }
+
+  const updated = must(await admin.from('rooms').update({ available }).eq('id', room.id).select().single(), 'update room');
+  cache.bust();
+  logEvent('room_saved', {
+    hostel_id: hostel.id,
+    actor_id: req.user.id,
+    meta: actorMeta(req, {
+      hostel: hostel.name,
+      room: updated.name,
+      action: booked ? 'booked' : 'reopened',
+      price: updated.price,
+    }),
+  });
+  res.json({ room: shapeRoom({ ...updated, room_images: room.room_images }) });
 });
 
 router.delete('/rooms/:roomId', requireApproved, async (req, res) => {

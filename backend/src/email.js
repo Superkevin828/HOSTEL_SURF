@@ -69,4 +69,15 @@ function sendHostelCreatedEmail(p, h) {
   });
 }
 
-module.exports = { escapeHtml, sendEmail, sendOwnerWelcomeEmail, sendOwnerApprovedEmail, sendHostelCreatedEmail, validateEmailConfig };
+function sendHostelLimitEmail(p, limit) {
+  const n = Math.max(1, Number(limit) || 1);
+  const word = n === 1 ? 'hostel' : 'hostels';
+  return sendEmail({
+    to: p.email,
+    subject: `You can now manage ${n} ${word} on BUhostels`,
+    html: `<h1>You can now manage ${n} ${word}, ${escapeHtml(p.full_name)}!</h1><p>Your BUhostels account for <strong>${escapeHtml(p.business_name)}</strong> can now manage up to <strong>${n}</strong> ${word}.</p><p>Sign in, open your dashboard and tap <strong>Add hostel</strong> to create another one.</p>`,
+    text: `You can now manage ${n} ${word}, ${p.full_name}!\n\nYour BUhostels account for ${p.business_name} can now manage up to ${n} ${word}.\n\nSign in, open your dashboard and tap Add hostel to create another one.`,
+  });
+}
+
+module.exports = { escapeHtml, sendEmail, sendOwnerWelcomeEmail, sendOwnerApprovedEmail, sendHostelCreatedEmail, sendHostelLimitEmail, validateEmailConfig };
