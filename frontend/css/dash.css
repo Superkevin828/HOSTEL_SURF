@@ -8,6 +8,9 @@ body.dashboard {
   grid-template-columns: 244px minmax(0, 1fr);
   min-height: 100vh;
 }
+.dash.side-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
 .side {
   position: sticky;
   top: 0;
@@ -19,6 +22,67 @@ body.dashboard {
   flex-direction: column;
   gap: 26px;
   overflow: auto;
+  transition: transform 0.25s ease, visibility 0s linear 0.25s;
+}
+.dash.side-collapsed > .side {
+  position: fixed;
+  left: 0;
+  width: 244px;
+  transform: translateX(calc(-100% - 12px));
+  visibility: hidden;
+  pointer-events: none;
+}
+.dash-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 44px;
+  margin-bottom: 22px;
+}
+.dash-mobile-mark {
+  display: none;
+}
+.side-toggle {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--d-line-strong, var(--line));
+  border-radius: var(--r-md);
+  background: var(--d-surface, var(--forest));
+  color: var(--d-ink, var(--ink));
+  cursor: pointer;
+}
+.side-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+.side-toggle .close-icon,
+.side-toggle[aria-expanded='true'] .menu-icon {
+  display: none;
+}
+.side-toggle[aria-expanded='true'] .close-icon {
+  display: block;
+}
+.side-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.64);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+}
+.dash.drawer-open .side-backdrop {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 .side .mark {
   color: var(--bone);
@@ -665,48 +729,49 @@ body.dashboard {
 }
 @media (max-width: 860px) {
   .dash {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .side {
-    position: static;
-    height: auto;
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 12px;
-    overflow-x: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: min(84vw, 300px);
+    max-width: calc(100vw - 32px);
+    height: 100vh;
+    height: 100dvh;
+    box-sizing: border-box;
+    overflow-y: auto;
+    transform: translateX(calc(-100% - 12px));
+    visibility: hidden;
+    pointer-events: none;
   }
-  .side .role {
-    display: none;
+  .dash.drawer-open > .side {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
   }
-  .side .mark {
-    flex: none;
-    padding: 0 8px 0 0;
+  .dash-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 110;
+    justify-content: space-between;
+    min-height: 64px;
+    margin: 0 -18px 20px;
+    padding: 8px 18px;
+    border-bottom: 1px solid var(--d-line, var(--line));
+    background: var(--d-bg, var(--paper));
   }
-  .side nav {
-    display: flex;
-    gap: 2px;
+  .dash-mobile-mark {
+    display: inline-flex;
   }
-  .side nav a {
-    border-left: 0;
-    border-bottom: 3px solid transparent;
-    padding: 8px 10px;
-    white-space: nowrap;
+  .dmain {
+    max-width: none;
+    padding: 0 18px 60px;
   }
-  .side nav a.on {
-    border-bottom-color: var(--brass);
-  }
-  .side .who {
-    margin: 0 0 0 auto;
-    padding: 0;
-    border: 0;
-    flex: none;
-    display: flex;
-    align-items: center;
-  }
-  .side .who b,
-  .side .who span {
-    display: none;
+  body.dashboard.side-drawer-open {
+    overflow: hidden;
   }
   .form-grid {
     grid-template-columns: 1fr;
@@ -752,6 +817,648 @@ body.dashboard {
 .approve-pop { border-radius: var(--r-md); }
 .chart .bar { rx: 4px; }
 @media (max-width: 900px) {
-  .side { border-radius: 0 0 var(--r-lg) var(--r-lg); }
+  .side { border-radius: 0 var(--r-lg) var(--r-lg) 0; }
 }
 .etabs a { border-radius: var(--r-sm) var(--r-sm) 0 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .side,
+  .side-backdrop {
+    transition: none;
+  }
+}
+
+/* ───────── one hostel: header card + rooms ───────── */
+.hostel-card {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.hostel-cover {
+  position: relative;
+  min-height: 240px;
+  background: var(--line-2) center / cover no-repeat;
+  display: grid;
+  place-items: center;
+}
+.hostel-cover span {
+  font-family: var(--serif);
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--mute);
+}
+.hostel-info {
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.hostel-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.hostel-title h1 {
+  font-size: clamp(26px, 3vw, 36px);
+  overflow-wrap: anywhere;
+}
+.lock-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--line-2);
+  color: var(--mute);
+  font-size: 12.5px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.lock-hint svg {
+  width: 14px;
+  height: 14px;
+}
+.hostel-meta {
+  color: var(--mute);
+  font-size: 15px;
+}
+.hostel-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.hostel-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  color: var(--mute);
+  font-size: 14px;
+}
+.hostel-contact span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.hostel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.notice.pending {
+  margin-top: 22px;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--brass);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 15px;
+}
+.notice.pending b {
+  font-weight: 700;
+}
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.room-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.room-media {
+  aspect-ratio: 16 / 10;
+  background: var(--line-2);
+  overflow: hidden;
+}
+.room-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.room-media .ph {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--mute);
+}
+.room-media .ph svg {
+  width: 34px;
+  height: 34px;
+}
+.room-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 16px;
+}
+.room-body h3 {
+  font-size: 19px;
+  overflow-wrap: anywhere;
+}
+.room-sub {
+  color: var(--mute);
+  font-size: 13.5px;
+}
+.room-facts {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 14px;
+}
+.room-price {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.rthumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.rthumb {
+  width: 48px;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xs);
+  background: var(--line-2);
+  overflow: hidden;
+  cursor: zoom-in;
+}
+.rthumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rthumb:hover {
+  border-color: var(--brass);
+}
+.room-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* ───────── owner overview: hostel boxes + next steps ───────── */
+.hostels-top {
+  margin-top: 26px;
+}
+.hostels-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.hostels-head h2 {
+  font-size: 24px;
+}
+.hostel-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.hostel-box {
+  display: flex;
+  flex-direction: column;
+  min-height: 44px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+.hostel-box:hover {
+  border-color: var(--brass);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px -30px rgba(0, 0, 0, 0.55);
+}
+.hostel-box:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+}
+.hb-cover {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  background: var(--line-2) center / cover no-repeat;
+}
+.hb-initials {
+  font-family: var(--serif);
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--mute);
+}
+.hb-badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+}
+.hb-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 12px 14px 14px;
+}
+.hb-name {
+  font-size: 16px;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+.hb-campus,
+.hb-rooms {
+  color: var(--mute);
+  font-size: 13px;
+}
+.hb-rooms {
+  font-variant-numeric: tabular-nums;
+}
+.hostel-box.add {
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 200px;
+  padding: 22px 16px;
+  border: 2px dashed var(--line);
+  background: transparent;
+  color: var(--mute);
+  font: 700 15px/1.3 var(--sans);
+  cursor: pointer;
+}
+.hostel-box.add svg {
+  width: 26px;
+  height: 26px;
+}
+.hostel-box.add:hover {
+  border-color: var(--brass);
+  background: var(--paper);
+  color: var(--ink);
+}
+.hostel-count-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.hostel-count {
+  color: var(--mute);
+  font-size: 14px;
+}
+.next-steps {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--brass);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  font-size: 14.5px;
+}
+.next-steps svg {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  color: var(--brass);
+}
+.next-steps b {
+  font-weight: 750;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  color: var(--mute);
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+.back-link:hover {
+  color: var(--ink);
+}
+.back-link svg {
+  width: 16px;
+  height: 16px;
+}
+.switch-hostel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.switch-hostel span {
+  color: var(--mute);
+  font-size: 13.5px;
+  font-weight: 650;
+}
+.switch-hostel select {
+  max-width: 320px;
+}
+
+/* ───────── room dialog + photo slots ───────── */
+.dlg.room-dialog {
+  width: min(620px, 94vw);
+  max-height: 92vh;
+  padding: 0;
+  overflow: hidden;
+}
+.dlg.details-dialog {
+  width: min(720px, 94vw);
+  max-height: 92vh;
+  padding: 0;
+  overflow: hidden;
+}
+.dlg.room-dialog[open],
+.dlg.details-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.room-form,
+.details-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 92vh;
+  padding: 0;
+  gap: 0;
+}
+.room-form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+}
+.room-form-head h3 {
+  font-size: 22px;
+}
+.room-form-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 22px;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+.room-form-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+.room-form-foot .hint {
+  min-height: 1.2em;
+}
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.slot {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--line);
+  border-radius: var(--r-sm);
+  background: var(--line-2);
+  overflow: hidden;
+}
+.slot.empty {
+  gap: 6px;
+  padding: 8px;
+  text-align: center;
+  color: var(--mute);
+  font-size: 12.5px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.slot.empty:hover {
+  border-color: var(--brass);
+  color: var(--ink);
+}
+.slot.empty svg {
+  width: 22px;
+  height: 22px;
+}
+.slot img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.slot.done {
+  border-style: solid;
+  border-color: var(--ok);
+}
+.slot-check {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ok);
+  color: var(--paper);
+}
+.slot-check svg {
+  width: 14px;
+  height: 14px;
+}
+.slot-x {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  cursor: pointer;
+}
+.slot-x:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+.slot-x svg {
+  width: 16px;
+  height: 16px;
+}
+.slot.uploading {
+  border-style: solid;
+}
+.slot-progress {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  display: grid;
+  gap: 4px;
+}
+.slot-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+.slot-bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--brass);
+  transition: width 0.2s ease;
+}
+.slot-progress span {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.slot.failed {
+  border-style: solid;
+  border-color: var(--bad);
+  gap: 8px;
+  padding: 8px;
+}
+.slot-fail {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+  color: var(--bad);
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+.slot-fail svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 760px) {
+  .hostel-card {
+    grid-template-columns: 1fr;
+  }
+  .hostel-cover {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+  .hostel-info {
+    padding: 20px;
+  }
+}
+@media (max-width: 640px) {
+  .hostel-boxes {
+    display: flex;
+    gap: 12px;
+    padding-bottom: 4px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .hostel-boxes::-webkit-scrollbar {
+    display: none;
+  }
+  .hostel-box {
+    flex: 0 0 80%;
+    scroll-snap-align: start;
+  }
+  .hostel-box.add {
+    flex-basis: 60%;
+    min-height: 170px;
+  }
+  .room-actions .btn,
+  .back-link,
+  .hostel-count-row .btn,
+  .switch-hostel select {
+    min-height: 44px;
+  }
+  .dlg.room-dialog,
+  .dlg.details-dialog {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    inset: 0;
+    border-radius: 0;
+    border: 0;
+  }
+  .room-form,
+  .details-form {
+    height: 100%;
+    max-height: 100dvh;
+  }
+  .room-form-scroll {
+    padding: 16px;
+  }
+  .room-form-head,
+  .room-form-foot {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .slots {
+    gap: 8px;
+  }
+  .slot-x {
+    width: 40px;
+    height: 40px;
+  }
+  .rthumb {
+    width: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slot-bar i {
+    transition: none;
+  }
+}

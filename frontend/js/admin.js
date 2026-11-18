@@ -389,9 +389,19 @@
         $('#oBody').innerHTML = list.length
           ? list.map((o) => {
               const s = STATUS[o.status] || ['', o.status];
+              const limit = Number(o.max_hostels) || 1;
+              const requested = o.more_hostels_requested_at && Date.now() - new Date(o.more_hostels_requested_at).getTime() < 7 * 24 * 60 * 60 * 1000;
               return '<tr><td><div class="who-cell"><span class="avatar sm"' + (o.avatar_url ? ' style="background-image:url(' + esc(o.avatar_url) + ')"' : '') + '>' + (o.avatar_url ? '' : esc(BU.initials(o.business_name || o.full_name))) + '</span><div><div class="cell-main">' + esc(o.full_name) + '</div><div class="cell-sub">' + esc(o.email) + '</div></div></div></td>' +
                 '<td><div class="cell-main">' + esc(o.business_name || '—') + '</div><div class="cell-sub">' + esc([o.campus && o.campus + ' campus', o.location].filter(Boolean).join(' · ')) + '</div></td>' +
-                '<td>' + esc(fmtPhone(o.phone)) + '</td><td class="num">' + o.hostels_count + '</td>' +
+                '<td>' + esc(fmtPhone(o.phone)) + '</td>' +
+                '<td><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+                  '<span class="cell-main">' + o.hostels_count + ' / ' + limit + '</span>' +
+                  (requested ? '<span class="badge warn">Requested more</span>' : '') +
+                  '<span style="display:inline-flex;align-items:center;gap:6px">' +
+                    '<input type="number" min="1" max="50" value="' + limit + '" data-limit-input="' + esc(o.id) + '" aria-label="Hostel limit for ' + esc(o.full_name) + '" style="width:72px;min-height:36px;padding:6px 8px">' +
+                    '<button class="btn btn-ghost btn-sm" type="button" data-limit="' + esc(o.id) + '">Save</button>' +
+                  '</span>' +
+                '</div></td>' +
                 '<td class="cell-sub">' + esc(timeAgo(o.created_at)) + '</td><td><span class="badge ' + s[0] + '">' + s[1] + '</span></td>' +
                 '<td><div class="row-acts">' +
                 (o.status !== 'approved' ? '<button class="btn btn-solid btn-sm" data-st="approved" data-id="' + esc(o.id) + '">Approve</button>' : '') +
@@ -400,7 +410,7 @@
                 '<button class="btn-icon" data-pw="' + esc(o.id) + '" aria-label="Reset password for ' + esc(o.full_name) + '" title="Reset password">' + icon('key') + '</button>' +
                 '<button class="btn-icon" data-rm="' + esc(o.id) + '" aria-label="Delete ' + esc(o.full_name) + '">' + icon('trash') + '</button></div></td></tr>';
             }).join('')
-          : '<tr><td colspan="6" class="muted" style="padding:28px 10px">No owners yet. Owners sign up from the public site, or add one yourself.</td></tr>';
+          : '<tr><td colspan="7" class="muted" style="padding:28px 10px">No owners yet. Owners sign up from the public site, or add one yourself.</td></tr>';
       };
 
       main.innerHTML =
@@ -443,7 +453,19 @@
         const st = e.target.closest('[data-st]');
         const pw = e.target.closest('[data-pw]');
         const rm = e.target.closest('[data-rm]');
+        const lim = e.target.closest('[data-limit]');
         try {
+          if (lim) {
+            const cell = lim.closest('td');
+            const input = cell && cell.querySelector('[data-limit-input]');
+            await api('/admin/owners/' + lim.dataset.limit + '/hostel-limit', {
+              method: 'PATCH',
+              body: { max_hostels: Number(input && input.value) },
+            });
+            toast('Hostel limit saved', 'ok');
+            reload();
+            return;
+          }
           if (st) {
             await api('/admin/owners/' + st.dataset.id + '/status', { method: 'PATCH', body: { status: st.dataset.st } });
             toast(st.dataset.st === 'approved' ? 'Owner approved' : 'Owner suspended', 'ok');

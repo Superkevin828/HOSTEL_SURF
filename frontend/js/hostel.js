@@ -113,15 +113,22 @@
     const rooms = h.rooms.length
       ? '<div class="rooms">' +
         h.rooms
-          .map(
-            (r) =>
-              '<div class="room"><div><h3>' + esc(r.name) + '</h3><div class="sub">' +
+          .map((r) => {
+            const imgs = r.images || [];
+            const roomThumbs = imgs.length
+              ? '<div class="room-thumbs">' +
+                imgs.map((im, i) => '<button type="button" class="room-thumb" data-room-img="' + esc(r.id) + '" data-i="' + i + '" aria-label="View photo ' + (i + 1) + ' of ' + esc(r.name) + '"><img src="' + esc(im.url) + '" alt="" loading="lazy"></button>').join('') +
+                '</div>'
+              : '';
+            return (
+              '<div class="room"><div class="room-main">' + roomThumbs + '<div><h3>' + esc(r.name) + '</h3><div class="sub">' +
               esc((BU.roomTypeLabel && BU.roomTypeLabel(r.type)) || r.type.replace('_', '-')) +
-              (r.description ? ' · ' + esc(r.description) : '') + '</div></div>' +
+              (r.description ? ' · ' + esc(r.description) : '') + '</div></div></div>' +
               '<div class="rp">' + esc(fmtMoney(r.price)) + '<small>per semester</small></div>' +
               '<div class="act">' + availability(r) + '<br><a class="link" style="font-size:14px" data-room="' + esc(r.id) + '" target="_blank" rel="noopener" href="' +
               esc(waLink(waNum, BU.waMessage(h.name, r))) + '">Ask about this room</a></div></div>'
-          )
+            );
+          })
           .join('') +
         '</div>'
       : '<p class="muted">The owner has not listed room prices yet. Message them to ask.</p>';
@@ -195,7 +202,47 @@
     const rel = $('#relGrid');
     if (rel) BU.bindCardTracking(rel);
 
+    document.querySelectorAll('[data-room-img]').forEach((b) => {
+      b.addEventListener('click', () => {
+        const room = h.rooms.find((r) => r.id === b.getAttribute('data-room-img'));
+        if (room && room.images && room.images.length) {
+          openLightbox(room.images, Number(b.getAttribute('data-i')), room.name);
+        }
+      });
+    });
+
     setupGallery(h);
+  }
+
+  function openLightbox(images, start, title, onShow) {
+    if (!images || !images.length) return;
+    let cur = (Number(start) || 0) % images.length;
+    const d = BU.dialog(
+      '<div class="lb-wrap"><img alt=""><button class="lb-btn lb-close" type="button" aria-label="Close">' + icon('close') + '</button>' +
+        (images.length > 1
+          ? '<button class="lb-btn lb-prev" type="button" aria-label="Previous photo">' + icon('left') + '</button><button class="lb-btn lb-next" type="button" aria-label="Next photo">' + icon('right') + '</button>'
+          : '') +
+        '<span class="lb-count"></span></div>',
+      'lightbox'
+    );
+    const im = d.querySelector('img');
+    const count = d.querySelector('.lb-count');
+    const paint = () => {
+      im.src = images[cur].url;
+      im.alt = (title || 'Photo') + ' ' + (cur + 1);
+      count.textContent = cur + 1 + ' / ' + images.length;
+      if (onShow) onShow(cur);
+    };
+    paint();
+    d.querySelector('.lb-close').addEventListener('click', () => d.close());
+    const prev = d.querySelector('.lb-prev');
+    const next = d.querySelector('.lb-next');
+    if (prev) prev.addEventListener('click', () => { cur = (cur - 1 + images.length) % images.length; paint(); });
+    if (next) next.addEventListener('click', () => { cur = (cur + 1) % images.length; paint(); });
+    d.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' && prev) prev.click();
+      if (e.key === 'ArrowRight' && next) next.click();
+    });
   }
 
   function setupGallery(h) {
@@ -216,40 +263,13 @@
       if (b) show(Number(b.getAttribute('data-i')));
     });
 
-    function lightbox() {
-      const d = BU.dialog(
-        '<div class="lb-wrap"><img alt=""><button class="lb-btn lb-close" type="button" aria-label="Close">' + icon('close') + '</button>' +
-          (imgs.length > 1
-            ? '<button class="lb-btn lb-prev" type="button" aria-label="Previous photo">' + icon('left') + '</button><button class="lb-btn lb-next" type="button" aria-label="Next photo">' + icon('right') + '</button>'
-            : '') +
-          '<span class="lb-count"></span></div>',
-        'lightbox'
-      );
-      const im = d.querySelector('img');
-      const count = d.querySelector('.lb-count');
-      const paint = () => {
-        im.src = imgs[cur].url;
-        im.alt = h.name + ' photo ' + (cur + 1);
-        count.textContent = cur + 1 + ' / ' + imgs.length;
-        show(cur);
-      };
-      paint();
-      d.querySelector('.lb-close').addEventListener('click', () => d.close());
-      const prev = d.querySelector('.lb-prev');
-      const next = d.querySelector('.lb-next');
-      if (prev) prev.addEventListener('click', () => { cur = (cur - 1 + imgs.length) % imgs.length; paint(); });
-      if (next) next.addEventListener('click', () => { cur = (cur + 1) % imgs.length; paint(); });
-      d.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft' && prev) prev.click();
-        if (e.key === 'ArrowRight' && next) next.click();
-      });
-    }
+    const open = () => openLightbox(imgs, cur, h.name, show);
     const gm = $('#gMain');
-    gm.addEventListener('click', lightbox);
+    gm.addEventListener('click', open);
     gm.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        lightbox();
+        open();
       }
     });
   }

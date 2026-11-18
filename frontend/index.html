@@ -47,11 +47,19 @@
       <button class="nav-search" id="navSearch" type="button" aria-label="Search hostels">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
       </button>
+      <button class="nav-menu-toggle" id="navMenuToggle" type="button" aria-controls="mobileNav" aria-expanded="false" aria-label="Open navigation menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="menu-icon" d="M4 6h16M4 12h16M4 18h16"/><path class="close-icon" d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
       <span id="navAuth" class="nav-auth">
         <a href="login.html">Sign in</a>
       </span>
       <a class="nav-book" href="#results">Book now</a>
     </div>
+    <nav class="mobile-nav" id="mobileNav" aria-label="Mobile" hidden>
+      <a href="#results">Browse</a>
+      <a href="login.html#register">List your hostel</a>
+      <a href="login.html">Sign in</a>
+    </nav>
   </div>
 </header>
 

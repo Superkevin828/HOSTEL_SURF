@@ -208,6 +208,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .home .nav-auth {
@@ -258,6 +259,69 @@
 .home .nav-search svg {
   width: 18px;
   height: 18px;
+}
+
+.home .nav-menu-toggle {
+  display: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--h-line-strong);
+  border-radius: var(--h-r-pill);
+  background: transparent;
+  color: var(--h-ink);
+  cursor: pointer;
+}
+
+.home .nav-menu-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+.home .nav-menu-toggle .close-icon,
+.home .nav-menu-toggle[aria-expanded='true'] .menu-icon {
+  display: none;
+}
+
+.home .nav-menu-toggle[aria-expanded='true'] .close-icon {
+  display: block;
+}
+
+.home .mobile-nav {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 16px;
+  z-index: 81;
+  display: grid;
+  width: min(240px, calc(100vw - 32px));
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--h-line-strong);
+  border-radius: var(--h-r-md);
+  background: var(--h-surface);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+}
+
+.home .mobile-nav[hidden] {
+  display: none;
+}
+
+.home .mobile-nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: var(--h-r-sm);
+  color: var(--h-ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.home .mobile-nav a:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .home .nav-book {
@@ -1358,6 +1422,21 @@
     height: 68px;
   }
 
+  .home .nav-menu-toggle {
+    display: grid;
+  }
+
+  .home .nav-auth a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 9px 16px;
+    border: 1px solid var(--h-line-strong);
+    border-radius: 999px;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
   .home .nav {
     display: none;
   }
@@ -1499,10 +1578,6 @@
 }
 
 @media (max-width: 560px) {
-  .home .nav-auth {
-    display: none;
-  }
-
   .home .announce .wrap {
     justify-content: flex-start;
     text-align: left;
@@ -1532,6 +1607,29 @@
   .home .help-fab {
     width: 54px;
     height: 54px;
+  }
+}
+
+@media (max-width: 420px) {
+  .home .nav-book {
+    display: none;
+  }
+
+  .home .nav-auth a {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .home .nav-tools {
+    gap: 5px;
+  }
+
+  .home .nav-auth {
+    gap: 4px;
+  }
+
+  .home .nav-auth button {
+    font-size: 12px;
   }
 }
 

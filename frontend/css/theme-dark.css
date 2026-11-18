@@ -840,24 +840,6 @@ body.auth-page .auth-box .btn-block {
   }
 }
 
-@media (max-width: 860px) {
-  body.dashboard .side {
-    border-right: 0;
-    border-bottom: 1px solid var(--d-line);
-    border-radius: 0 0 20px 20px;
-  }
-
-  body.dashboard .side nav a {
-    border-left: 0;
-    border-bottom: 3px solid transparent;
-  }
-
-  body.dashboard .side nav a.on {
-    border-left-color: transparent;
-    border-bottom-color: var(--d-green);
-  }
-}
-
 @media (max-width: 700px) {
   body.dashboard .tile,
   body.dashboard .panel {
@@ -877,75 +859,206 @@ body.auth-page .auth-box .btn-block {
   }
 }
 
-@media (max-width: 860px) {
-  body.admin-dash .side {
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 10px 12px 9px;
-    overflow: visible;
-  }
+/* ───────── one hostel: header card, rooms, photo slots ───────── */
+body.dashboard .hostel-card,
+body.dashboard .room-card {
+  border: 1px solid var(--d-line);
+  background: var(--d-surface);
+  box-shadow: 0 26px 60px -48px #000;
+}
 
-  body.admin-dash .side > div:first-child {
-    order: 1;
-  }
+body.dashboard .hostel-cover {
+  background-color: var(--d-surface-2);
+}
 
-  body.admin-dash .side .who {
-    order: 2;
-    margin: 0 0 0 auto;
-    gap: 6px;
-  }
+body.dashboard .hostel-cover span {
+  color: var(--d-gold-2);
+}
 
-  body.admin-dash .side nav {
-    order: 3;
-    flex: 0 0 100%;
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 4px;
-  }
+body.dashboard .hostel-title h1 {
+  color: var(--d-ink);
+}
 
-  body.admin-dash .side nav a {
-    position: relative;
-    justify-content: center;
-    gap: 5px;
-    min-width: 0;
-    padding: 9px 3px;
-    border-radius: 10px;
-    font-size: clamp(11px, 3.1vw, 13px);
-    white-space: nowrap;
-  }
+body.dashboard .lock-hint {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--d-muted);
+}
 
-  body.admin-dash .side nav a .i {
-    width: 15px;
-    height: 15px;
-    flex: none;
-  }
+body.dashboard .hostel-meta,
+body.dashboard .hostel-contact {
+  color: var(--d-muted);
+}
 
-  body.admin-dash .side nav a .count {
-    position: absolute;
-    top: 3px;
-    right: 4px;
-    margin: 0;
-    padding: 0 4px;
-    font-size: 9px;
-    line-height: 14px;
-  }
+body.dashboard .notice.pending {
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-left: 3px solid var(--d-gold);
+  border-radius: 18px;
+  background: rgba(212, 175, 55, 0.08);
+  color: #f0d795;
+}
 
-  body.admin-dash .side .who a,
-  body.admin-dash .side .who button {
-    width: 34px;
-    height: 34px;
-    justify-content: center;
-    gap: 0;
-    border: 1px solid var(--d-line);
-    border-radius: 50%;
-    font-size: 0;
-    color: var(--d-muted);
-  }
+body.dashboard .notice.pending b {
+  color: var(--d-gold-2);
+}
 
-  body.admin-dash .side .who a .i,
-  body.admin-dash .side .who button .i {
-    width: 17px;
-    height: 17px;
+body.dashboard .room-media {
+  background: var(--d-surface-2);
+}
+
+body.dashboard .room-media .ph {
+  color: var(--d-muted);
+}
+
+body.dashboard .room-body h3 {
+  color: var(--d-ink);
+}
+
+body.dashboard .room-sub {
+  color: var(--d-muted);
+}
+
+body.dashboard .room-price {
+  color: var(--d-ink);
+}
+
+body.dashboard .rthumb {
+  border: 1px solid var(--d-line);
+  background: var(--d-surface-2);
+}
+
+body.dashboard .rthumb:hover {
+  border-color: var(--d-green);
+}
+
+body.dashboard .room-form-head,
+body.dashboard .room-form-foot {
+  border-color: var(--d-line);
+}
+
+body.dashboard .room-form-foot {
+  background: var(--d-surface-2);
+}
+
+body.dashboard .slot {
+  border-color: var(--d-line-strong);
+  background: var(--d-surface-2);
+}
+
+body.dashboard .slot.empty {
+  color: var(--d-muted);
+}
+
+body.dashboard .slot.empty:hover {
+  border-color: var(--d-green);
+  color: var(--d-ink);
+}
+
+body.dashboard .slot.done {
+  border-color: rgba(0, 255, 136, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.08);
+}
+
+body.dashboard .slot-bar {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+body.dashboard .slot-bar i {
+  background: var(--d-green);
+}
+
+body.dashboard .slot.failed {
+  border-color: rgba(255, 107, 107, 0.5);
+}
+
+body.dashboard dialog.lightbox {
+  border-color: var(--d-line);
+  background: #030303;
+}
+
+body.dashboard .lightbox .lb-btn {
+  border: 1px solid var(--d-line-strong);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--d-ink);
+}
+
+body.dashboard .lightbox .lb-btn:hover {
+  border-color: var(--d-green);
+  background: rgba(0, 255, 136, 0.12);
+  color: var(--d-green);
+}
+
+body.dashboard .lightbox .lb-count {
+  border: 1px solid var(--d-line);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.68);
+  color: var(--d-muted);
+}
+
+/* ───────── owner overview: hostel boxes + next steps ───────── */
+body.dashboard .hostel-box {
+  border: 1px solid var(--d-line);
+  background: var(--d-surface);
+}
+
+body.dashboard .hostel-box:hover {
+  border-color: var(--d-green);
+  box-shadow: 0 26px 50px -38px #000;
+}
+
+body.dashboard .hb-cover {
+  background-color: var(--d-surface-2);
+}
+
+body.dashboard .hb-initials {
+  color: var(--d-gold-2);
+}
+
+body.dashboard .hb-name {
+  color: var(--d-ink);
+}
+
+body.dashboard .hb-campus,
+body.dashboard .hb-rooms,
+body.dashboard .hostel-count,
+body.dashboard .back-link,
+body.dashboard .switch-hostel span {
+  color: var(--d-muted);
+}
+
+body.dashboard .hostel-box.add {
+  border-color: var(--d-line-strong);
+  background: transparent;
+  color: var(--d-muted);
+}
+
+body.dashboard .hostel-box.add:hover {
+  border-color: var(--d-green);
+  background: rgba(0, 255, 136, 0.05);
+  color: var(--d-ink);
+}
+
+body.dashboard .next-steps {
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-left: 3px solid var(--d-gold);
+  border-radius: 18px;
+  background: rgba(212, 175, 55, 0.08);
+  color: #f0d795;
+}
+
+body.dashboard .next-steps svg,
+body.dashboard .next-steps b {
+  color: var(--d-gold-2);
+}
+
+body.dashboard .back-link:hover {
+  color: var(--d-green);
+}
+
+@media (max-width: 640px) {
+  body.dashboard .dlg.room-dialog,
+  body.dashboard .dlg.details-dialog {
+    border: 0;
+    border-radius: 0;
   }
 }
